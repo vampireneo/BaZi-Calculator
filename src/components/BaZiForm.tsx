@@ -32,14 +32,14 @@ export const BaZiForm: React.FC<BaZiFormProps> = ({ onCalculate }) => {
     <div className="w-full max-w-2xl mx-auto">
       <div className="bg-white shadow-lg rounded-lg p-8 border border-gray-200 transition-all duration-300 hover:shadow-xl">
         <h2 className="text-3xl font-bold text-center mb-8 text-ink-black">
-          八字排盘
+          八字排盤
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* 性别选择 */}
+          {/* 性別選擇 */}
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-ink-black">
-              性别 Gender
+              性別 Gender
             </label>
             <div className="flex gap-4">
               <button
@@ -70,7 +70,7 @@ export const BaZiForm: React.FC<BaZiFormProps> = ({ onCalculate }) => {
           {/* 出生日期 */}
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-ink-black">
-              出生日期 Date of Birth (公历/Gregorian)
+              出生日期 Date of Birth (公曆/Gregorian)
             </label>
             <div className="grid grid-cols-3 gap-3">
               <input
@@ -106,15 +106,15 @@ export const BaZiForm: React.FC<BaZiFormProps> = ({ onCalculate }) => {
             </div>
           </div>
 
-          {/* 出生时间 */}
+          {/* 出生時間 */}
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-ink-black">
-              出生时间 Time of Birth (24小时制)
+              出生時間 Time of Birth (24小時制)
             </label>
             <div className="grid grid-cols-2 gap-3">
               <input
                 type="number"
-                placeholder="时 Hour"
+                placeholder="時 Hour"
                 value={hour}
                 onChange={(e) => setHour(e.target.value)}
                 min="0"
@@ -135,12 +135,12 @@ export const BaZiForm: React.FC<BaZiFormProps> = ({ onCalculate }) => {
             </div>
           </div>
 
-          {/* 提交按钮 */}
+          {/* 提交按鈕 */}
           <button
             type="submit"
             className="w-full bg-ink-red text-white py-4 px-6 rounded-lg font-semibold text-lg hover:bg-red-800 transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-md hover:shadow-lg"
           >
-            开始排盘 Calculate
+            開始排盤 Calculate
           </button>
         </form>
       </div>

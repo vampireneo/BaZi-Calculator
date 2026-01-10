@@ -9,21 +9,21 @@ function App() {
   const [error, setError] = useState<string>('');
 
   const handleCalculate = (birthInfo: BirthInfo) => {
-    // 验证输入
+    // 驗證輸入
     const validation = validateBirthInfo(birthInfo);
     if (!validation.valid) {
-      setError(validation.error || '输入错误');
+      setError(validation.error || '輸入錯誤');
       setResult(null);
       return;
     }
 
     try {
-      // 计算八字
+      // 計算八字
       const baziResult = calculateBaZi(birthInfo);
       setResult(baziResult);
       setError('');
     } catch (err) {
-      setError('计算出错，请检查输入是否正确');
+      setError('計算出錯，請檢查輸入是否正確');
       setResult(null);
       console.error(err);
     }
@@ -32,20 +32,20 @@ function App() {
   return (
     <div className="min-h-screen bg-ink-white py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        {/* 标题 */}
+        {/* 標題 */}
         <div className="text-center mb-12">
           <h1 className="text-5xl md:text-6xl font-bold text-ink-black mb-4">
             八字排盤
           </h1>
           <p className="text-lg text-gray-600">
-            BaZi Calculator - 传统命理推算工具
+            BaZi Calculator - 傳統命理推算工具
           </p>
         </div>
 
-        {/* 表单 */}
+        {/* 表單 */}
         <BaZiForm onCalculate={handleCalculate} />
 
-        {/* 错误提示 */}
+        {/* 錯誤提示 */}
         {error && (
           <div className="mt-8 max-w-2xl mx-auto">
             <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4 text-center">
@@ -54,12 +54,12 @@ function App() {
           </div>
         )}
 
-        {/* 结果展示 */}
+        {/* 結果展示 */}
         {result && <BaZiResult result={result} />}
 
-        {/* 页脚 */}
+        {/* 頁腳 */}
         <footer className="mt-16 text-center text-sm text-gray-500">
-          <p>使用 lunar-javascript 库进行精确计算</p>
+          <p>使用 lunar-javascript 庫進行精確計算</p>
           <p className="mt-2">Built with React + TypeScript + Tailwind CSS</p>
         </footer>
       </div>

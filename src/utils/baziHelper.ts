@@ -26,23 +26,23 @@ export interface BaZiResult {
 }
 
 /**
- * 计算八字排盘
- * @param birthInfo 出生信息
- * @returns 八字结果
+ * 計算八字排盤
+ * @param birthInfo 出生資訊
+ * @returns 八字結果
  */
 export function calculateBaZi(birthInfo: BirthInfo): BaZiResult {
   const { year, month, day, hour, minute, gender } = birthInfo;
 
-  // 使用 Solar 创建公历日期对象
+  // 使用 Solar 創建公曆日期對象
   const solar = Solar.fromYmdHms(year, month, day, hour, minute, 0);
 
-  // 转换为农历对象
+  // 轉換為農曆對象
   const lunar = solar.getLunar();
 
-  // 获取八字对象
+  // 獲取八字對象
   const eightChar = lunar.getEightChar();
 
-  // 获取四柱
+  // 獲取四柱
   const yearPillar: Pillar = {
     heavenlyStem: eightChar.getYearGan(),
     earthlyBranch: eightChar.getYearZhi(),
@@ -79,9 +79,9 @@ export function calculateBaZi(birthInfo: BirthInfo): BaZiResult {
 }
 
 /**
- * 获取地支藏干
+ * 獲取地支藏干
  * @param earthlyBranch 地支
- * @returns 藏干数组
+ * @returns 藏干數組
  */
 function getHiddenStems(earthlyBranch: string): string[] {
   const hiddenStemsMap: Record<string, string[]> = {
@@ -103,31 +103,31 @@ function getHiddenStems(earthlyBranch: string): string[] {
 }
 
 /**
- * 验证日期输入
- * @param birthInfo 出生信息
+ * 驗證日期輸入
+ * @param birthInfo 出生資訊
  * @returns 是否有效
  */
 export function validateBirthInfo(birthInfo: BirthInfo): { valid: boolean; error?: string } {
   const { year, month, day, hour, minute } = birthInfo;
 
   if (year < 1900 || year > 2100) {
-    return { valid: false, error: '年份必须在1900-2100之间' };
+    return { valid: false, error: '年份必須在1900-2100之間' };
   }
 
   if (month < 1 || month > 12) {
-    return { valid: false, error: '月份必须在1-12之间' };
+    return { valid: false, error: '月份必須在1-12之間' };
   }
 
   if (day < 1 || day > 31) {
-    return { valid: false, error: '日期必须在1-31之间' };
+    return { valid: false, error: '日期必須在1-31之間' };
   }
 
   if (hour < 0 || hour > 23) {
-    return { valid: false, error: '小时必须在0-23之间' };
+    return { valid: false, error: '小時必須在0-23之間' };
   }
 
   if (minute < 0 || minute > 59) {
-    return { valid: false, error: '分钟必须在0-59之间' };
+    return { valid: false, error: '分鐘必須在0-59之間' };
   }
 
   return { valid: true };

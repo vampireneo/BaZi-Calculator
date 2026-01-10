@@ -50,19 +50,19 @@ const PillarCard: React.FC<{ title: string; pillar: Pillar }> = ({ title, pillar
 export const BaZiResult: React.FC<BaZiResultProps> = ({ result }) => {
   return (
     <div className="w-full max-w-6xl mx-auto mt-12 animate-fade-in">
-      {/* 基本信息 */}
+      {/* 基本資訊 */}
       <div className="bg-white rounded-lg shadow-lg p-6 mb-8 border border-gray-200">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
           <div>
-            <div className="text-sm text-gray-500 mb-1">性别</div>
+            <div className="text-sm text-gray-500 mb-1">性別</div>
             <div className="text-xl font-semibold text-ink-black">{result.gender}</div>
           </div>
           <div>
-            <div className="text-sm text-gray-500 mb-1">公历</div>
+            <div className="text-sm text-gray-500 mb-1">公曆</div>
             <div className="text-xl font-semibold text-ink-black">{result.solarDate}</div>
           </div>
           <div>
-            <div className="text-sm text-gray-500 mb-1">农历</div>
+            <div className="text-sm text-gray-500 mb-1">農曆</div>
             <div className="text-xl font-semibold text-ink-black">{result.lunarDate}</div>
           </div>
         </div>
@@ -78,11 +78,11 @@ export const BaZiResult: React.FC<BaZiResultProps> = ({ result }) => {
           <PillarCard title="年柱 Year" pillar={result.yearPillar} />
           <PillarCard title="月柱 Month" pillar={result.monthPillar} />
           <PillarCard title="日柱 Day" pillar={result.dayPillar} />
-          <PillarCard title="时柱 Hour" pillar={result.hourPillar} />
+          <PillarCard title="時柱 Hour" pillar={result.hourPillar} />
         </div>
       </div>
 
-      {/* 印章装饰 */}
+      {/* 印章裝飾 */}
       <div className="flex justify-center mt-8">
         <div className="w-20 h-20 bg-ink-red rounded-lg flex items-center justify-center transform rotate-12 shadow-lg">
           <span className="text-white text-2xl font-bold">命</span>
