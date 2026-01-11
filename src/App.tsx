@@ -59,7 +59,7 @@ function App() {
 
         {/* 頁腳 */}
         <footer className="mt-16 text-center text-sm text-gray-500">
-          <p>使用 lunar-javascript 庫進行精確計算</p>
+          <p>使用 tyme4ts 庫進行精確計算</p>
           <p className="mt-2">Built with React + TypeScript + Tailwind CSS</p>
         </footer>
       </div>

@@ -1,4 +1,4 @@
-import { Solar } from 'lunar-javascript';
+import { SolarTime, EarthBranch } from 'tyme4ts';
 
 export interface BirthInfo {
   gender: 'male' | 'female';
@@ -33,43 +33,48 @@ export interface BaZiResult {
 export function calculateBaZi(birthInfo: BirthInfo): BaZiResult {
   const { year, month, day, hour, minute, gender } = birthInfo;
 
-  // 使用 Solar 創建公曆日期對象
-  const solar = Solar.fromYmdHms(year, month, day, hour, minute, 0);
+  // 使用 SolarTime 創建公曆日期時間對象
+  const solarTime = SolarTime.fromYmdHms(year, month, day, hour, minute, 0);
 
-  // 轉換為農曆對象
-  const lunar = solar.getLunar();
+  // 獲取農曆日期
+  const lunarDay = solarTime.getSolarDay().getLunarDay();
 
   // 獲取八字對象
-  const eightChar = lunar.getEightChar();
+  const eightChar = solarTime.getSixtyCycleHour().getEightChar();
 
   // 獲取四柱
+  const yearSixtyCycle = eightChar.getYear();
+  const monthSixtyCycle = eightChar.getMonth();
+  const daySixtyCycle = eightChar.getDay();
+  const hourSixtyCycle = eightChar.getHour();
+
   const yearPillar: Pillar = {
-    heavenlyStem: eightChar.getYearGan(),
-    earthlyBranch: eightChar.getYearZhi(),
-    hiddenStems: getHiddenStems(eightChar.getYearZhi()),
+    heavenlyStem: yearSixtyCycle.getHeavenStem().getName(),
+    earthlyBranch: yearSixtyCycle.getEarthBranch().getName(),
+    hiddenStems: getHiddenStems(yearSixtyCycle.getEarthBranch()),
   };
 
   const monthPillar: Pillar = {
-    heavenlyStem: eightChar.getMonthGan(),
-    earthlyBranch: eightChar.getMonthZhi(),
-    hiddenStems: getHiddenStems(eightChar.getMonthZhi()),
+    heavenlyStem: monthSixtyCycle.getHeavenStem().getName(),
+    earthlyBranch: monthSixtyCycle.getEarthBranch().getName(),
+    hiddenStems: getHiddenStems(monthSixtyCycle.getEarthBranch()),
   };
 
   const dayPillar: Pillar = {
-    heavenlyStem: eightChar.getDayGan(),
-    earthlyBranch: eightChar.getDayZhi(),
-    hiddenStems: getHiddenStems(eightChar.getDayZhi()),
+    heavenlyStem: daySixtyCycle.getHeavenStem().getName(),
+    earthlyBranch: daySixtyCycle.getEarthBranch().getName(),
+    hiddenStems: getHiddenStems(daySixtyCycle.getEarthBranch()),
   };
 
   const hourPillar: Pillar = {
-    heavenlyStem: eightChar.getTimeGan(),
-    earthlyBranch: eightChar.getTimeZhi(),
-    hiddenStems: getHiddenStems(eightChar.getTimeZhi()),
+    heavenlyStem: hourSixtyCycle.getHeavenStem().getName(),
+    earthlyBranch: hourSixtyCycle.getEarthBranch().getName(),
+    hiddenStems: getHiddenStems(hourSixtyCycle.getEarthBranch()),
   };
 
   return {
-    solarDate: solar.toYmd(),
-    lunarDate: `${lunar.getYearInChinese()}年 ${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}`,
+    solarDate: solarTime.getSolarDay().toString(),
+    lunarDate: lunarDay.toString(),
     yearPillar,
     monthPillar,
     dayPillar,
@@ -80,26 +85,13 @@ export function calculateBaZi(birthInfo: BirthInfo): BaZiResult {
 
 /**
  * 獲取地支藏干
- * @param earthlyBranch 地支
+ * @param earthlyBranch 地支對象
  * @returns 藏干數組
  */
-function getHiddenStems(earthlyBranch: string): string[] {
-  const hiddenStemsMap: Record<string, string[]> = {
-    '子': ['癸'],
-    '丑': ['己', '癸', '辛'],
-    '寅': ['甲', '丙', '戊'],
-    '卯': ['乙'],
-    '辰': ['戊', '乙', '癸'],
-    '巳': ['丙', '庚', '戊'],
-    '午': ['丁', '己'],
-    '未': ['己', '丁', '乙'],
-    '申': ['庚', '壬', '戊'],
-    '酉': ['辛'],
-    '戌': ['戊', '辛', '丁'],
-    '亥': ['壬', '甲'],
-  };
-
-  return hiddenStemsMap[earthlyBranch] || [];
+function getHiddenStems(earthlyBranch: EarthBranch): string[] {
+  // 使用 tyme4ts 提供的藏干功能
+  const hideHeavenStems = earthlyBranch.getHideHeavenStems();
+  return hideHeavenStems.map(hideHeavenStem => hideHeavenStem.getHeavenStem().getName());
 }
 
 /**
