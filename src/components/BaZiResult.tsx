@@ -68,6 +68,42 @@ export const BaZiResult: React.FC<BaZiResultProps> = ({ result }) => {
         </div>
       </div>
 
+      {/* 真太陽時校正資訊 */}
+      {result.correctionInfo && (
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg shadow-md p-4 mb-8 border border-blue-200">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="text-sm font-semibold text-blue-800">
+              已校正經度與日光節約時間 (DST)
+            </span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 text-center text-sm">
+            <div className="bg-white/60 rounded-md p-2">
+              <div className="text-gray-500 text-xs mb-1">出生地點</div>
+              <div className="font-medium text-gray-800">{result.correctionInfo.cityName}</div>
+            </div>
+            <div className="bg-white/60 rounded-md p-2">
+              <div className="text-gray-500 text-xs mb-1">真太陽時</div>
+              <div className="font-medium text-gray-800">{result.correctionInfo.correctedTime}</div>
+            </div>
+            <div className="bg-white/60 rounded-md p-2">
+              <div className="text-gray-500 text-xs mb-1">DST 狀態</div>
+              <div className={`font-medium ${result.correctionInfo.isDST ? 'text-orange-600' : 'text-gray-600'}`}>
+                {result.correctionInfo.isDST ? `夏令時間 (+${result.correctionInfo.dstOffsetMinutes}分鐘)` : '標準時間'}
+              </div>
+            </div>
+            <div className="bg-white/60 rounded-md p-2">
+              <div className="text-gray-500 text-xs mb-1">經度校正</div>
+              <div className="font-medium text-gray-800">
+                {result.correctionInfo.longitudeOffsetMinutes >= 0 ? '+' : ''}{result.correctionInfo.longitudeOffsetMinutes.toFixed(1)} 分鐘
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 四柱展示 */}
       <div className="mb-8">
         <h2 className="text-3xl font-bold text-center mb-8 text-ink-black">

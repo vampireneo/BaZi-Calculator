@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { BirthInfo } from '../utils/baziHelper';
+import { CITIES, getCityByKey, getDefaultCity } from '../utils/cities';
 
 interface BaZiFormProps {
   onCalculate: (birthInfo: BirthInfo) => void;
@@ -12,9 +13,12 @@ export const BaZiForm: React.FC<BaZiFormProps> = ({ onCalculate }) => {
   const [day, setDay] = useState<string>('');
   const [hour, setHour] = useState<string>('');
   const [minute, setMinute] = useState<string>('');
+  const [cityKey, setCityKey] = useState<string>(getDefaultCity().key);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const selectedCity = getCityByKey(cityKey) || getDefaultCity();
 
     const birthInfo: BirthInfo = {
       gender,
@@ -23,6 +27,7 @@ export const BaZiForm: React.FC<BaZiFormProps> = ({ onCalculate }) => {
       day: parseInt(day),
       hour: parseInt(hour),
       minute: parseInt(minute),
+      city: selectedCity,
     };
 
     onCalculate(birthInfo);
@@ -65,6 +70,27 @@ export const BaZiForm: React.FC<BaZiFormProps> = ({ onCalculate }) => {
                 女 Female
               </button>
             </div>
+          </div>
+
+          {/* 出生地點 */}
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-ink-black">
+              出生地點 Birth Location
+            </label>
+            <select
+              value={cityKey}
+              onChange={(e) => setCityKey(e.target.value)}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-ink-red transition-colors bg-white"
+            >
+              {CITIES.map((city) => (
+                <option key={city.key} value={city.key}>
+                  {city.name}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-500">
+              用於計算真太陽時，自動處理日光節約時間 (DST)
+            </p>
           </div>
 
           {/* 出生日期 */}

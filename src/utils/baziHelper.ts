@@ -1,4 +1,7 @@
 import { SolarTime, EarthBranch } from 'tyme4ts';
+import { calculateTrueSolarTime, formatCorrectionInfo, formatCorrectedTime } from './trueSolarTime';
+import type { City } from './cities';
+import { getDefaultCity } from './cities';
 
 export interface BirthInfo {
   gender: 'male' | 'female';
@@ -7,6 +10,7 @@ export interface BirthInfo {
   day: number;
   hour: number;
   minute: number;
+  city?: City; // 可選的城市資料，用於真太陽時計算
 }
 
 export interface Pillar {
@@ -23,6 +27,15 @@ export interface BaZiResult {
   dayPillar: Pillar;
   hourPillar: Pillar;
   gender: string;
+  // 真太陽時校正資訊
+  correctionInfo?: {
+    cityName: string;
+    isDST: boolean;
+    dstOffsetMinutes: number;
+    longitudeOffsetMinutes: number;
+    correctedTime: string;
+    correctionSummary: string;
+  };
 }
 
 /**
@@ -31,10 +44,25 @@ export interface BaZiResult {
  * @returns 八字結果
  */
 export function calculateBaZi(birthInfo: BirthInfo): BaZiResult {
-  const { year, month, day, hour, minute, gender } = birthInfo;
+  const { year, month, day, hour, minute, gender, city } = birthInfo;
 
-  // 使用 SolarTime 創建公曆日期時間對象
-  const solarTime = SolarTime.fromYmdHms(year, month, day, hour, minute, 0);
+  // 獲取城市資料，若無則使用預設城市（台北）
+  const selectedCity = city || getDefaultCity();
+
+  // 計算真太陽時（地方平太陽時）
+  const trueSolarTimeResult = calculateTrueSolarTime(
+    year, month, day, hour, minute, selectedCity
+  );
+
+  // 使用校正後的真太陽時創建 SolarTime 對象
+  const solarTime = SolarTime.fromYmdHms(
+    trueSolarTimeResult.year,
+    trueSolarTimeResult.month,
+    trueSolarTimeResult.day,
+    trueSolarTimeResult.hour,
+    trueSolarTimeResult.minute,
+    trueSolarTimeResult.second
+  );
 
   // 獲取農曆日期
   const lunarDay = solarTime.getSolarDay().getLunarDay();
@@ -80,6 +108,14 @@ export function calculateBaZi(birthInfo: BirthInfo): BaZiResult {
     dayPillar,
     hourPillar,
     gender: gender === 'male' ? '男' : '女',
+    correctionInfo: {
+      cityName: selectedCity.name,
+      isDST: trueSolarTimeResult.isDST,
+      dstOffsetMinutes: trueSolarTimeResult.dstOffsetMinutes,
+      longitudeOffsetMinutes: trueSolarTimeResult.longitudeOffsetMinutes,
+      correctedTime: formatCorrectedTime(trueSolarTimeResult),
+      correctionSummary: formatCorrectionInfo(trueSolarTimeResult),
+    },
   };
 }
 
