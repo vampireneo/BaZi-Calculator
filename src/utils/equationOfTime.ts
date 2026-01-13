@@ -79,18 +79,6 @@ export function calculateEquationOfTime(
   const epsilon = 23.439291 - 0.0130042 * T - 0.00000016 * T * T + 0.000000504 * T * T * T;
   const epsilon_rad = epsilon * Math.PI / 180;
 
-  // 計算太陽方程（Sun's Equation of Center）
-  const C = (1.914602 - 0.004817 * T - 0.000014 * T * T) * Math.sin(M_rad) +
-            (0.019993 - 0.000101 * T) * Math.sin(2 * M_rad) +
-            0.000289 * Math.sin(3 * M_rad);
-
-  // 太陽的真黃經
-  const L_true = L0 + C;
-  const L_true_rad = L_true * Math.PI / 180;
-
-  // 太陽的真近點角
-  const nu_rad = M_rad + C * Math.PI / 180;
-
   // 計算均時差（使用簡化公式）
   // EoT = 4 * (L0 - 0.0057183 - α + Δψ * cos(ε))
   // 其中 α 是太陽的赤經
