@@ -2,6 +2,7 @@ import { SolarTime, EarthBranch } from 'tyme4ts';
 import { calculateTrueSolarTime, formatCorrectionInfo, formatCorrectedTime } from './trueSolarTime';
 import type { City } from './cities';
 import { getDefaultCity } from './cities';
+import { convertToTraditional } from './chineseConverter';
 
 export interface BirthInfo {
   gender: 'male' | 'female';
@@ -102,7 +103,7 @@ export function calculateBaZi(birthInfo: BirthInfo): BaZiResult {
 
   return {
     solarDate: solarTime.getSolarDay().toString(),
-    lunarDate: lunarDay.toString(),
+    lunarDate: convertToTraditional(lunarDay.toString()),
     yearPillar,
     monthPillar,
     dayPillar,

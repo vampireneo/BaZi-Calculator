@@ -31,8 +31,8 @@ export function getCityByKey(key: string): City | undefined {
 }
 
 /**
- * 獲取預設城市（台北）
+ * 獲取預設城市（香港）
  */
 export function getDefaultCity(): City {
-  return CITIES[0];
+  return CITIES[1];
 }
