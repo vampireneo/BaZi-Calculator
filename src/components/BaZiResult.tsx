@@ -110,7 +110,7 @@ export const BaZiResult: React.FC<BaZiResultProps> = ({ result }) => {
           四柱八字
         </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-4 gap-2 md:gap-6">
           <PillarCard title="時柱 Hour" pillar={result.hourPillar} />
           <PillarCard title="日柱 Day" pillar={result.dayPillar} />
           <PillarCard title="月柱 Month" pillar={result.monthPillar} />
