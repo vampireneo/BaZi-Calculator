@@ -111,10 +111,10 @@ export const BaZiResult: React.FC<BaZiResultProps> = ({ result }) => {
         </h2>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          <PillarCard title="年柱 Year" pillar={result.yearPillar} />
-          <PillarCard title="月柱 Month" pillar={result.monthPillar} />
-          <PillarCard title="日柱 Day" pillar={result.dayPillar} />
           <PillarCard title="時柱 Hour" pillar={result.hourPillar} />
+          <PillarCard title="日柱 Day" pillar={result.dayPillar} />
+          <PillarCard title="月柱 Month" pillar={result.monthPillar} />
+          <PillarCard title="年柱 Year" pillar={result.yearPillar} />
         </div>
       </div>
 
