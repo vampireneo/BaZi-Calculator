@@ -4,8 +4,8 @@ import { calculateEquationOfTime } from './equationOfTime';
 import { getCityByKey } from './cities';
 
 describe('均時差計算 (Equation of Time)', () => {
-  it('1981年2月10日的均時差應該約為 -14 分鐘', () => {
-    const eot = calculateEquationOfTime(1981, 2, 10);
+  it('2月中旬的均時差應該約為 -14 分鐘', () => {
+    const eot = calculateEquationOfTime(2000, 2, 10);
     // 2月中旬是均時差最小值的時期，約 -14 分鐘
     expect(eot).toBeGreaterThan(-15);
     expect(eot).toBeLessThan(-13);
@@ -26,9 +26,9 @@ describe('均時差計算 (Equation of Time)', () => {
 });
 
 describe('真太陽時計算', () => {
-  it('1981-02-10 17:06 香港時間 - 應計算正確的真太陽時（傳統方法）', () => {
+  it('2月中旬香港時間 - 應計算正確的真太陽時（傳統方法）', () => {
     const city = getCityByKey('HKG')!;
-    const result = calculateTrueSolarTime(1981, 2, 10, 17, 6, city);
+    const result = calculateTrueSolarTime(2000, 2, 10, 14, 30, city);
 
     // 驗證均時差約為 -14 分鐘
     expect(result.equationOfTimeMinutes).toBeGreaterThan(-15);
@@ -39,10 +39,10 @@ describe('真太陽時計算', () => {
     expect(result.longitudeOffsetMinutes).toBeCloseTo(114.17 * 4, 1);
 
     // 傳統方法：真太陽時 = 本地時間 + 均時差
-    // 1981-02-10 17:06 + (-14.31分) = 16:51 或 16:52
-    expect(result.hour).toBe(16);
-    expect(result.minute).toBeGreaterThan(50);
-    expect(result.minute).toBeLessThan(53);
+    // 2000-02-10 14:30 + (-14分左右) = 約 14:16
+    expect(result.hour).toBe(14);
+    expect(result.minute).toBeGreaterThan(14);
+    expect(result.minute).toBeLessThan(17);
   });
 
   it('台北時間計算 - 驗證傳統方法', () => {
@@ -69,7 +69,7 @@ describe('真太陽時計算', () => {
 
   it('格式化校正資訊應包含均時差', () => {
     const city = getCityByKey('HKG')!;
-    const result = calculateTrueSolarTime(1981, 2, 10, 17, 6, city);
+    const result = calculateTrueSolarTime(2000, 2, 10, 14, 30, city);
     const info = formatCorrectionInfo(result);
 
     // 應該包含 DST、經度和均時差資訊
