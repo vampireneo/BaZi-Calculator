@@ -1,7 +1,12 @@
 import { SolarTime, EarthBranch } from 'tyme4ts';
-import { calculateTrueSolarTime, formatCorrectionInfo, formatCorrectedTime } from './trueSolarTime';
+import {
+  calculateTrueSolarTime,
+  formatCorrectionInfo,
+  formatCorrectedTime,
+} from './trueSolarTime';
 import type { City } from './cities';
 import { getDefaultCity } from './cities';
+import { convertToTraditional } from './chineseConverter';
 
 export interface BirthInfo {
   gender: 'male' | 'female';
@@ -46,12 +51,17 @@ export interface BaZiResult {
 export function calculateBaZi(birthInfo: BirthInfo): BaZiResult {
   const { year, month, day, hour, minute, gender, city } = birthInfo;
 
-  // 獲取城市資料，若無則使用預設城市（台北）
+  // 獲取城市資料，若無則使用預設城市（香港）
   const selectedCity = city || getDefaultCity();
 
   // 計算真太陽時（地方平太陽時）
   const trueSolarTimeResult = calculateTrueSolarTime(
-    year, month, day, hour, minute, selectedCity
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    selectedCity
   );
 
   // 使用校正後的真太陽時創建 SolarTime 對象
@@ -102,7 +112,7 @@ export function calculateBaZi(birthInfo: BirthInfo): BaZiResult {
 
   return {
     solarDate: solarTime.getSolarDay().toString(),
-    lunarDate: lunarDay.toString(),
+    lunarDate: convertToTraditional(lunarDay.toString()),
     yearPillar,
     monthPillar,
     dayPillar,
@@ -127,7 +137,9 @@ export function calculateBaZi(birthInfo: BirthInfo): BaZiResult {
 function getHiddenStems(earthlyBranch: EarthBranch): string[] {
   // 使用 tyme4ts 提供的藏干功能
   const hideHeavenStems = earthlyBranch.getHideHeavenStems();
-  return hideHeavenStems.map(hideHeavenStem => hideHeavenStem.getHeavenStem().getName());
+  return hideHeavenStems.map((hideHeavenStem) =>
+    hideHeavenStem.getHeavenStem().getName()
+  );
 }
 
 /**
@@ -135,7 +147,10 @@ function getHiddenStems(earthlyBranch: EarthBranch): string[] {
  * @param birthInfo 出生資訊
  * @returns 是否有效
  */
-export function validateBirthInfo(birthInfo: BirthInfo): { valid: boolean; error?: string } {
+export function validateBirthInfo(birthInfo: BirthInfo): {
+  valid: boolean;
+  error?: string;
+} {
   const { year, month, day, hour, minute } = birthInfo;
 
   if (year < 1900 || year > 2100) {
