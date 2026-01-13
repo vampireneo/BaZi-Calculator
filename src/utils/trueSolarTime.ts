@@ -1,10 +1,11 @@
 /**
  * 真太陽時計算模組
- * 使用 Luxon 處理時區與 DST，計算經度校正後的地方平太陽時
+ * 使用 Luxon 處理時區與 DST，計算經度校正和均時差修正後的真太陽時
  */
 
 import { DateTime } from 'luxon';
 import type { City } from './cities';
+import { calculateEquationOfTime } from './equationOfTime';
 
 export interface TrueSolarTimeResult {
   /** 校正後的年份 */
@@ -25,20 +26,27 @@ export interface TrueSolarTimeResult {
   dstOffsetMinutes: number;
   /** 經度校正量（分鐘） */
   longitudeOffsetMinutes: number;
+  /** 均時差（分鐘） */
+  equationOfTimeMinutes: number;
   /** 原始 UTC 時間 */
   utcTime: DateTime;
   /** 平太陽時 DateTime */
   meanSolarTime: DateTime;
+  /** 真太陽時 DateTime（包含均時差修正） */
+  trueSolarTime: DateTime;
 }
 
 /**
- * 計算真太陽時（地方平太陽時）
+ * 計算真太陽時（傳統八字方法）
  *
  * 計算步驟：
  * 1. 使用 Luxon 解析用戶輸入的當地時間（自動處理 DST）
- * 2. 轉換為 UTC 時間
- * 3. 根據經度計算時差（每度 4 分鐘）
- * 4. 計算地方平太陽時 (Local Mean Time)
+ * 2. 計算均時差
+ * 3. 本地時間 + 均時差 = 真太陽時
+ *
+ * 注意：此方法採用傳統八字排盤的簡化計算方式，
+ * 將本地標準時間視為地方平太陽時，只加上均時差修正。
+ * 未考慮城市經度與標準時區中央經線的差異。
  *
  * @param year 年份
  * @param month 月份 (1-12)
@@ -75,30 +83,42 @@ export function calculateTrueSolarTime(
   const currentOffset = localTime.offset;
   const dstOffsetMinutes = currentOffset - standardOffset;
 
-  // Step 2: 轉換為 UTC 時間
+  // Step 2: 轉換為 UTC 時間（用於計算均時差）
   const utcTime = localTime.toUTC();
 
-  // Step 3: 計算經度時差
+  // Step 3: 計算經度時差（僅供參考，傳統方法不使用）
   // 每度經度 = 4 分鐘時差
   // 東經為正，表示比 UTC 更早看到太陽
   const longitudeOffsetMinutes = city.longitude * 4;
 
-  // Step 4: 計算地方平太陽時 (Local Mean Time)
-  // LMT = UTC + 經度時差
-  const meanSolarTime = utcTime.plus({ minutes: longitudeOffsetMinutes });
+  // Step 4: 傳統方法將本地時間視為地方平太陽時
+  const meanSolarTime = localTime;
+
+  // Step 5: 計算均時差並得到真太陽時
+  // 使用 UTC 日期來計算均時差（因為均時差是基於地球相對太陽的位置）
+  const equationOfTimeMinutes = calculateEquationOfTime(
+    utcTime.year,
+    utcTime.month,
+    utcTime.day
+  );
+
+  // 真太陽時 = 本地時間 + 均時差（傳統八字方法）
+  const trueSolarTime = localTime.plus({ minutes: equationOfTimeMinutes });
 
   return {
-    year: meanSolarTime.year,
-    month: meanSolarTime.month,
-    day: meanSolarTime.day,
-    hour: meanSolarTime.hour,
-    minute: meanSolarTime.minute,
-    second: meanSolarTime.second,
+    year: trueSolarTime.year,
+    month: trueSolarTime.month,
+    day: trueSolarTime.day,
+    hour: trueSolarTime.hour,
+    minute: trueSolarTime.minute,
+    second: trueSolarTime.second,
     isDST,
     dstOffsetMinutes,
     longitudeOffsetMinutes,
+    equationOfTimeMinutes,
     utcTime,
     meanSolarTime,
+    trueSolarTime,
   };
 }
 
@@ -113,10 +133,14 @@ export function formatCorrectionInfo(result: TrueSolarTimeResult): string {
     : '非DST';
 
   const longitudeInfo = result.longitudeOffsetMinutes >= 0
-    ? `經度校正 +${result.longitudeOffsetMinutes.toFixed(1)}分鐘`
-    : `經度校正 ${result.longitudeOffsetMinutes.toFixed(1)}分鐘`;
+    ? `經度 +${result.longitudeOffsetMinutes.toFixed(1)}分`
+    : `經度 ${result.longitudeOffsetMinutes.toFixed(1)}分`;
 
-  return `${dstInfo} | ${longitudeInfo}`;
+  const eotInfo = result.equationOfTimeMinutes >= 0
+    ? `均時差 +${result.equationOfTimeMinutes.toFixed(1)}分`
+    : `均時差 ${result.equationOfTimeMinutes.toFixed(1)}分`;
+
+  return `${dstInfo} | ${longitudeInfo} | ${eotInfo}`;
 }
 
 /**
