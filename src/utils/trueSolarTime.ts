@@ -37,16 +37,13 @@ export interface TrueSolarTimeResult {
 }
 
 /**
- * 計算真太陽時（傳統八字方法）
+ * 計算真太陽時
  *
  * 計算步驟：
  * 1. 使用 Luxon 解析用戶輸入的當地時間（自動處理 DST）
- * 2. 計算均時差
- * 3. 本地時間 + 均時差 = 真太陽時
- *
- * 注意：此方法採用傳統八字排盤的簡化計算方式，
- * 將本地標準時間視為地方平太陽時，只加上均時差修正。
- * 未考慮城市經度與標準時區中央經線的差異。
+ * 2. 計算經度修正（城市經度與時區中央經線的差異）
+ * 3. 計算均時差
+ * 4. 真太陽時 = 本地時間 + 經度修正 + 均時差
  *
  * @param year 年份
  * @param month 月份 (1-12)
@@ -86,13 +83,16 @@ export function calculateTrueSolarTime(
   // Step 2: 轉換為 UTC 時間（用於計算均時差）
   const utcTime = localTime.toUTC();
 
-  // Step 3: 計算經度時差（僅供參考，傳統方法不使用）
-  // 每度經度 = 4 分鐘時差
-  // 東經為正，表示比 UTC 更早看到太陽
-  const longitudeOffsetMinutes = city.longitude * 4;
+  // Step 3: 計算經度修正
+  // 時區中央經線 = 標準時區偏移(分鐘) / 4
+  // 例如：UTC+8 = 480分鐘 / 4 = 120°E
+  const centralMeridian = standardOffset / 4;
+  // 經度修正 = (城市經度 - 中央經線) × 4 分鐘/度
+  // 東邊的城市太陽較早升起，所以經度較大時修正為正
+  const longitudeOffsetMinutes = (city.longitude - centralMeridian) * 4;
 
-  // Step 4: 傳統方法將本地時間視為地方平太陽時
-  const meanSolarTime = localTime;
+  // Step 4: 計算平太陽時（本地時間 + 經度修正）
+  const meanSolarTime = localTime.plus({ minutes: longitudeOffsetMinutes });
 
   // Step 5: 計算均時差並得到真太陽時
   // 使用 UTC 日期來計算均時差（因為均時差是基於地球相對太陽的位置）
@@ -102,8 +102,8 @@ export function calculateTrueSolarTime(
     utcTime.day
   );
 
-  // 真太陽時 = 本地時間 + 均時差（傳統八字方法）
-  const trueSolarTime = localTime.plus({ minutes: equationOfTimeMinutes });
+  // 真太陽時 = 本地時間 + 經度修正 + 均時差
+  const trueSolarTime = localTime.plus({ minutes: longitudeOffsetMinutes + equationOfTimeMinutes });
 
   return {
     year: trueSolarTime.year,

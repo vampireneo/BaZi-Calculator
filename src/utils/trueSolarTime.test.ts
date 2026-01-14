@@ -26,7 +26,7 @@ describe('均時差計算 (Equation of Time)', () => {
 });
 
 describe('真太陽時計算', () => {
-  it('2月中旬香港時間 - 應計算正確的真太陽時（傳統方法）', () => {
+  it('2月中旬香港時間 - 應計算正確的真太陽時', () => {
     const city = getCityByKey('HKG')!;
     const result = calculateTrueSolarTime(2000, 2, 10, 14, 30, city);
 
@@ -34,18 +34,18 @@ describe('真太陽時計算', () => {
     expect(result.equationOfTimeMinutes).toBeGreaterThan(-15);
     expect(result.equationOfTimeMinutes).toBeLessThan(-13);
 
-    // 驗證經度校正（香港 114.17°E * 4 = 456.68 分鐘）
-    // 注意：傳統方法不使用經度校正，但仍計算此值供參考
-    expect(result.longitudeOffsetMinutes).toBeCloseTo(114.17 * 4, 1);
+    // 驗證經度校正（香港 114.17°E，UTC+8 中央經線 120°E）
+    // 經度修正 = (114.17 - 120) * 4 = -23.32 分鐘
+    expect(result.longitudeOffsetMinutes).toBeCloseTo((114.17 - 120) * 4, 1);
 
-    // 傳統方法：真太陽時 = 本地時間 + 均時差
-    // 2000-02-10 14:30 + (-14分左右) = 約 14:16
-    expect(result.hour).toBe(14);
-    expect(result.minute).toBeGreaterThan(14);
-    expect(result.minute).toBeLessThan(17);
+    // 真太陽時 = 本地時間 + 經度修正 + 均時差
+    // 2000-02-10 14:30 + (-23分) + (-14分) = 約 13:53
+    expect(result.hour).toBe(13);
+    expect(result.minute).toBeGreaterThan(50);
+    expect(result.minute).toBeLessThan(56);
   });
 
-  it('台北時間計算 - 驗證傳統方法', () => {
+  it('台北時間計算 - 驗證經度修正', () => {
     const city = getCityByKey('TPE')!;
     const result = calculateTrueSolarTime(2024, 2, 10, 12, 0, city);
 
@@ -53,9 +53,9 @@ describe('真太陽時計算', () => {
     expect(result.equationOfTimeMinutes).toBeGreaterThan(-15);
     expect(result.equationOfTimeMinutes).toBeLessThan(-13);
 
-    // 驗證經度校正值（台北 121.56°E * 4 = 486.24 分鐘）
-    // 注意：傳統方法不使用經度校正，但仍計算此值供參考
-    expect(result.longitudeOffsetMinutes).toBeCloseTo(121.56 * 4, 1);
+    // 驗證經度校正值（台北 121.56°E，UTC+8 中央經線 120°E）
+    // 經度修正 = (121.56 - 120) * 4 = 6.24 分鐘
+    expect(result.longitudeOffsetMinutes).toBeCloseTo((121.56 - 120) * 4, 1);
 
     // 驗證結果包含所有必要欄位
     expect(result.year).toBeDefined();
