@@ -6,6 +6,9 @@ import {
   getFiveElementStrength,
   getMissingElements,
   getStrongestElements,
+  getDayMasterInfo,
+  calculateDayMasterStrength,
+  calculateFavorableElements,
 } from './fiveElements';
 
 describe('五行計算測試', () => {
@@ -167,6 +170,137 @@ describe('五行計算測試', () => {
       expect(strongest).toContain('木');
       expect(strongest).toContain('火');
       expect(strongest).toHaveLength(3);
+    });
+  });
+
+  describe('getDayMasterInfo', () => {
+    it('應該正確返回日主資訊', () => {
+      const result = getDayMasterInfo('己');
+      expect(result).toEqual({
+        stem: '己',
+        element: '土',
+        displayName: '己土',
+      });
+    });
+
+    it('應該正確處理所有天干', () => {
+      expect(getDayMasterInfo('甲')?.displayName).toBe('甲木');
+      expect(getDayMasterInfo('乙')?.displayName).toBe('乙木');
+      expect(getDayMasterInfo('丙')?.displayName).toBe('丙火');
+      expect(getDayMasterInfo('丁')?.displayName).toBe('丁火');
+      expect(getDayMasterInfo('戊')?.displayName).toBe('戊土');
+      expect(getDayMasterInfo('己')?.displayName).toBe('己土');
+      expect(getDayMasterInfo('庚')?.displayName).toBe('庚金');
+      expect(getDayMasterInfo('辛')?.displayName).toBe('辛金');
+      expect(getDayMasterInfo('壬')?.displayName).toBe('壬水');
+      expect(getDayMasterInfo('癸')?.displayName).toBe('癸水');
+    });
+
+    it('對於無效輸入應該返回 null', () => {
+      expect(getDayMasterInfo('無效')).toBe(null);
+    });
+  });
+
+  describe('calculateDayMasterStrength', () => {
+    it('日主偏強：同類數量多於異類', () => {
+      // 日主為土，火生土（印），土比土（比）
+      // 同類：火+土，異類：金+水+木
+      const elementsCount = {
+        金: 1,
+        木: 1,
+        水: 1,
+        火: 2,
+        土: 3,
+      };
+
+      const result = calculateDayMasterStrength('土', elementsCount);
+      expect(result.isStrong).toBe(true);
+      expect(result.sameTypeCount).toBe(5); // 火2 + 土3
+      expect(result.differentTypeCount).toBe(3); // 金1 + 水1 + 木1
+      expect(result.strengthLabel).toBe('偏強');
+    });
+
+    it('日主偏弱：異類數量多於同類', () => {
+      // 日主為木，水生木（印），木比木（比）
+      // 同類：水+木，異類：火+土+金
+      const elementsCount = {
+        金: 2,
+        木: 1,
+        水: 1,
+        火: 2,
+        土: 2,
+      };
+
+      const result = calculateDayMasterStrength('木', elementsCount);
+      expect(result.isStrong).toBe(false);
+      expect(result.sameTypeCount).toBe(2); // 水1 + 木1
+      expect(result.differentTypeCount).toBe(6); // 火2 + 土2 + 金2
+      expect(result.strengthLabel).toBe('極弱');
+    });
+
+    it('日主中和：同類與異類數量接近', () => {
+      const elementsCount = {
+        金: 1,
+        木: 2,
+        水: 2,
+        火: 2,
+        土: 1,
+      };
+
+      const result = calculateDayMasterStrength('木', elementsCount);
+      // 同類：水2 + 木2 = 4
+      // 異類：火2 + 土1 + 金1 = 4
+      expect(result.sameTypeCount).toBe(4);
+      expect(result.differentTypeCount).toBe(4);
+      expect(result.strengthLabel).toBe('中和');
+    });
+  });
+
+  describe('calculateFavorableElements', () => {
+    it('日主強時，喜洩耗，忌生扶', () => {
+      const strength = {
+        isStrong: true,
+        sameTypeCount: 5,
+        differentTypeCount: 3,
+        strengthLabel: '偏強',
+      };
+
+      // 日主為土
+      const result = calculateFavorableElements('土', strength);
+
+      // 喜神：我生（金）、克我（木）、我克（水）
+      expect(result.favorable).toContain('金');
+      expect(result.favorable).toContain('木');
+      expect(result.favorable).toContain('水');
+
+      // 忌神：生我（火）、比我（土）
+      expect(result.unfavorable).toContain('火');
+      expect(result.unfavorable).toContain('土');
+
+      expect(result.explanation).toBe('日主偏強，喜洩耗，忌生扶');
+    });
+
+    it('日主弱時，喜生扶，忌洩耗', () => {
+      const strength = {
+        isStrong: false,
+        sameTypeCount: 2,
+        differentTypeCount: 6,
+        strengthLabel: '偏弱',
+      };
+
+      // 日主為木
+      const result = calculateFavorableElements('木', strength);
+
+      // 喜神：生我（水）、比我（木）
+      expect(result.favorable).toContain('水');
+      expect(result.favorable).toContain('木');
+
+      // 忌神：我生（火）、克我（金）、我克（土）
+      expect(result.unfavorable).toContain('火');
+      expect(result.unfavorable).toContain('金');
+      expect(result.unfavorable).toContain('土');
+
+      expect(result.explanation).toBe('日主偏弱，喜生扶，忌洩耗');
     });
   });
 });

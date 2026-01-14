@@ -147,3 +147,175 @@ export function getStrongestElements(elementsCount: FiveElementsCount): FiveElem
   });
   return strongest;
 }
+
+/**
+ * 日主資訊
+ */
+export interface DayMasterInfo {
+  stem: string; // 天干，如 "己"
+  element: FiveElement; // 五行，如 "土"
+  displayName: string; // 顯示名稱，如 "己土"
+}
+
+/**
+ * 五行生克關係
+ * 生：木→火→土→金→水→木
+ * 克：木→土→水→火→金→木
+ */
+const ELEMENT_GENERATES: Record<FiveElement, FiveElement> = {
+  木: '火',
+  火: '土',
+  土: '金',
+  金: '水',
+  水: '木',
+};
+
+const ELEMENT_GENERATED_BY: Record<FiveElement, FiveElement> = {
+  木: '水',
+  火: '木',
+  土: '火',
+  金: '土',
+  水: '金',
+};
+
+const ELEMENT_CONTROLS: Record<FiveElement, FiveElement> = {
+  木: '土',
+  土: '水',
+  水: '火',
+  火: '金',
+  金: '木',
+};
+
+const ELEMENT_CONTROLLED_BY: Record<FiveElement, FiveElement> = {
+  木: '金',
+  土: '木',
+  水: '土',
+  火: '水',
+  金: '火',
+};
+
+/**
+ * 獲取日主資訊
+ * @param dayHeavenlyStem 日柱天干
+ * @returns 日主資訊
+ */
+export function getDayMasterInfo(dayHeavenlyStem: string): DayMasterInfo | null {
+  const element = getHeavenlyStemElement(dayHeavenlyStem);
+  if (!element) return null;
+
+  return {
+    stem: dayHeavenlyStem,
+    element,
+    displayName: `${dayHeavenlyStem}${element}`,
+  };
+}
+
+/**
+ * 日主強弱結果
+ */
+export interface DayMasterStrength {
+  isStrong: boolean; // 日主是否偏強
+  sameTypeCount: number; // 同類五行數量（生我、比我）
+  differentTypeCount: number; // 異類五行數量（我生、克我、我克）
+  strengthLabel: string; // 強弱描述
+}
+
+/**
+ * 計算日主強弱
+ * 同類：生我者（印）+ 比我者（比劫）
+ * 異類：我生者（食傷）+ 克我者（官殺）+ 我克者（財）
+ *
+ * @param dayMasterElement 日主五行
+ * @param fiveElements 八字五行分佈
+ * @returns 日主強弱結果
+ */
+export function calculateDayMasterStrength(
+  dayMasterElement: FiveElement,
+  fiveElements: FiveElementsCount
+): DayMasterStrength {
+  // 同類：生我者 + 比我者
+  const generatesMe = ELEMENT_GENERATED_BY[dayMasterElement]; // 印（生我）
+  const sameAsMe = dayMasterElement; // 比（比我）
+
+  // 異類：我生者 + 克我者 + 我克者
+  const iGenerate = ELEMENT_GENERATES[dayMasterElement]; // 食傷（我生）
+  const controlsMe = ELEMENT_CONTROLLED_BY[dayMasterElement]; // 官殺（克我）
+  const iControl = ELEMENT_CONTROLS[dayMasterElement]; // 財（我克）
+
+  const sameTypeCount = fiveElements[generatesMe] + fiveElements[sameAsMe];
+  const differentTypeCount =
+    fiveElements[iGenerate] + fiveElements[controlsMe] + fiveElements[iControl];
+
+  const isStrong = sameTypeCount >= differentTypeCount;
+
+  let strengthLabel: string;
+  const diff = sameTypeCount - differentTypeCount;
+  if (diff >= 3) {
+    strengthLabel = '極強';
+  } else if (diff >= 1) {
+    strengthLabel = '偏強';
+  } else if (diff >= -1) {
+    strengthLabel = '中和';
+  } else if (diff >= -3) {
+    strengthLabel = '偏弱';
+  } else {
+    strengthLabel = '極弱';
+  }
+
+  return {
+    isStrong,
+    sameTypeCount,
+    differentTypeCount,
+    strengthLabel,
+  };
+}
+
+/**
+ * 喜忌神結果
+ */
+export interface FavorableElements {
+  favorable: FiveElement[]; // 喜神（對日主有利的五行）
+  unfavorable: FiveElement[]; // 忌神（對日主不利的五行）
+  explanation: string; // 解釋說明
+}
+
+/**
+ * 計算喜神和忌神
+ * 日主強：喜洩耗（我生、克我、我克），忌生扶（生我、比我）
+ * 日主弱：喜生扶（生我、比我），忌洩耗（我生、克我、我克）
+ *
+ * @param dayMasterElement 日主五行
+ * @param strength 日主強弱
+ * @returns 喜忌神結果
+ */
+export function calculateFavorableElements(
+  dayMasterElement: FiveElement,
+  strength: DayMasterStrength
+): FavorableElements {
+  // 生我者 + 比我者（扶助日主）
+  const supportElements: FiveElement[] = [
+    ELEMENT_GENERATED_BY[dayMasterElement], // 印（生我）
+    dayMasterElement, // 比（比我）
+  ];
+
+  // 我生者 + 克我者 + 我克者（洩耗日主）
+  const drainElements: FiveElement[] = [
+    ELEMENT_GENERATES[dayMasterElement], // 食傷（我生）
+    ELEMENT_CONTROLLED_BY[dayMasterElement], // 官殺（克我）
+    ELEMENT_CONTROLS[dayMasterElement], // 財（我克）
+  ];
+
+  if (strength.isStrong) {
+    return {
+      favorable: drainElements,
+      unfavorable: supportElements,
+      explanation: `日主${strength.strengthLabel}，喜洩耗，忌生扶`,
+    };
+  } else {
+    return {
+      favorable: supportElements,
+      unfavorable: drainElements,
+      explanation: `日主${strength.strengthLabel}，喜生扶，忌洩耗`,
+    };
+  }
+}

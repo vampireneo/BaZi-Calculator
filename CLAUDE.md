@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-BaZi Calculator (八字排盤) is a Chinese astrology web application that calculates the Four Pillars of Destiny based on birth date/time. It uses traditional Chinese calendar calculations with true solar time corrections.
+BaZi Calculator (八字排盤) is a Chinese astrology web application that calculates the Four Pillars of Destiny based on birth date/time. It uses traditional Chinese calendar calculations with true solar time corrections, and provides Five Elements (五行) analysis including Day Master strength and favorable/unfavorable elements.
 
 ## Commands
 
@@ -34,7 +34,12 @@ npx vitest run src/utils/baziHelper.test.ts
    - Four Pillars (Year, Month, Day, Hour)
    - Hidden Stems for each Earthly Branch
    - Lunar calendar date
-4. **Result Display** (`BaZiResult.tsx`) → shows pillars with Chinese characters
+   - Five Elements distribution
+4. **Five Elements Analysis** (`fiveElements.ts`) → calculates:
+   - Day Master (日主) from Day Pillar's Heavenly Stem
+   - Day Master Strength (日主強弱) based on supporting vs draining elements
+   - Favorable Elements (喜神) and Unfavorable Elements (忌神)
+5. **Result Display** (`BaZiResult.tsx`) → shows pillars, Day Master analysis, and Five Elements
 
 ### Key Dependencies
 
@@ -46,8 +51,30 @@ npx vitest run src/utils/baziHelper.test.ts
 
 - `BirthInfo`: Input data (gender, date, time, optional city)
 - `Pillar`: Heavenly Stem + Earthly Branch + Hidden Stems
-- `BaZiResult`: Complete calculation output including solar/lunar dates and correction info
+- `BaZiResult`: Complete calculation output including solar/lunar dates, pillars, five elements count, and correction info
 - `City`: Location data with longitude and IANA timezone for solar time calculation
+- `FiveElementsCount`: Count of each Five Element (金木水火土) in the chart
+- `DayMasterInfo`: Day Master stem, element, and display name (e.g., "己土")
+- `DayMasterStrength`: Day Master strength analysis (same-type vs different-type count)
+- `FavorableElements`: Favorable (喜神) and unfavorable (忌神) elements based on Day Master strength
+
+### Five Elements Calculation Rules
+
+**Day Master Strength (日主強弱)**:
+- Same-type (同類): Elements that support the Day Master (生我 + 比我)
+- Different-type (異類): Elements that drain the Day Master (我生 + 克我 + 我克)
+- Strong if same-type ≥ different-type; Weak if same-type < different-type
+
+**Favorable/Unfavorable Elements (喜神/忌神)**:
+- Day Master Strong → Favorable: draining elements; Unfavorable: supporting elements
+- Day Master Weak → Favorable: supporting elements; Unfavorable: draining elements
+
+**Five Elements Color Scheme**:
+- 金 (Metal): Slate/Silver
+- 木 (Wood): Green
+- 水 (Water): Blue
+- 火 (Fire): Red
+- 土 (Earth): Amber
 
 ### Important Calculation Rules
 
