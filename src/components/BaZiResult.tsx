@@ -1,5 +1,7 @@
 import React from 'react';
 import type { BaZiResult as BaZiResultType, Pillar } from '../utils/baziHelper';
+import { getFiveElementStrength, getMissingElements } from '../utils/fiveElements';
+import type { FiveElement } from '../utils/fiveElements';
 
 interface BaZiResultProps {
   result: BaZiResultType;
@@ -40,6 +42,74 @@ const PillarCard: React.FC<{ title: string; pillar: Pillar }> = ({ title, pillar
             <div className="text-sm font-medium text-gray-700">
               {pillar.hiddenStems.join(' ')}
             </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// 五行顏色配置
+const ELEMENT_COLORS: Record<FiveElement, { bg: string; text: string; border: string }> = {
+  金: { bg: 'bg-yellow-50', text: 'text-yellow-800', border: 'border-yellow-300' },
+  木: { bg: 'bg-green-50', text: 'text-green-800', border: 'border-green-300' },
+  水: { bg: 'bg-blue-50', text: 'text-blue-800', border: 'border-blue-300' },
+  火: { bg: 'bg-red-50', text: 'text-red-800', border: 'border-red-300' },
+  土: { bg: 'bg-amber-50', text: 'text-amber-800', border: 'border-amber-300' },
+};
+
+const FiveElementsDisplay: React.FC<{ result: BaZiResultType }> = ({ result }) => {
+  const { fiveElements } = result;
+  const missingElements = getMissingElements(fiveElements);
+
+  return (
+    <div className="bg-white rounded-lg shadow-lg p-6 mb-8 border border-gray-200">
+      <h2 className="text-2xl font-bold text-center mb-6 text-ink-black">
+        五行分佈 Five Elements
+      </h2>
+
+      {/* 五行統計圖 */}
+      <div className="grid grid-cols-5 gap-4 mb-6">
+        {(Object.keys(fiveElements) as FiveElement[]).map((element) => {
+          const count = fiveElements[element];
+          const colors = ELEMENT_COLORS[element];
+          const strength = getFiveElementStrength(count);
+
+          return (
+            <div
+              key={element}
+              className={`${colors.bg} ${colors.border} border-2 rounded-lg p-4 text-center transition-all duration-300 hover:scale-105`}
+            >
+              <div className={`text-3xl font-bold ${colors.text} mb-2`}>
+                {element}
+              </div>
+              <div className="text-4xl font-bold text-gray-800 mb-1">
+                {count}
+              </div>
+              <div className={`text-sm font-medium ${colors.text}`}>
+                {strength}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* 缺失五行提示 */}
+      {missingElements.length > 0 && (
+        <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-4 text-center">
+          <div className="text-sm text-orange-600 font-medium mb-1">
+            五行缺失
+          </div>
+          <div className="text-xl font-bold text-orange-800">
+            {missingElements.join('、')}
+          </div>
+        </div>
+      )}
+
+      {missingElements.length === 0 && (
+        <div className="bg-emerald-50 border-2 border-emerald-200 rounded-lg p-4 text-center">
+          <div className="text-lg font-bold text-emerald-800">
+            五行俱全
           </div>
         </div>
       )}
@@ -103,6 +173,9 @@ export const BaZiResult: React.FC<BaZiResultProps> = ({ result }) => {
           </div>
         </div>
       )}
+
+      {/* 五行分佈 */}
+      <FiveElementsDisplay result={result} />
 
       {/* 四柱展示 */}
       <div className="mb-8">
