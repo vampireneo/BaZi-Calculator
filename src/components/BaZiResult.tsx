@@ -1,6 +1,12 @@
 import React from 'react';
 import type { BaZiResult as BaZiResultType, Pillar } from '../utils/baziHelper';
-import { getFiveElementStrength, getMissingElements } from '../utils/fiveElements';
+import {
+  getFiveElementStrength,
+  getMissingElements,
+  getDayMasterInfo,
+  calculateDayMasterStrength,
+  calculateFavorableElements,
+} from '../utils/fiveElements';
 import type { FiveElement } from '../utils/fiveElements';
 
 interface BaZiResultProps {
@@ -51,7 +57,7 @@ const PillarCard: React.FC<{ title: string; pillar: Pillar }> = ({ title, pillar
 
 // 五行顏色配置
 const ELEMENT_COLORS: Record<FiveElement, { bg: string; text: string; border: string }> = {
-  金: { bg: 'bg-yellow-50', text: 'text-yellow-800', border: 'border-yellow-300' },
+  金: { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-400' },
   木: { bg: 'bg-green-50', text: 'text-green-800', border: 'border-green-300' },
   水: { bg: 'bg-blue-50', text: 'text-blue-800', border: 'border-blue-300' },
   火: { bg: 'bg-red-50', text: 'text-red-800', border: 'border-red-300' },
@@ -59,11 +65,107 @@ const ELEMENT_COLORS: Record<FiveElement, { bg: string; text: string; border: st
 };
 
 const FiveElementsDisplay: React.FC<{ result: BaZiResultType }> = ({ result }) => {
-  const { fiveElements } = result;
+  const { fiveElements, dayPillar } = result;
   const missingElements = getMissingElements(fiveElements);
+
+  // 計算日主資訊
+  const dayMasterInfo = getDayMasterInfo(dayPillar.heavenlyStem);
+  const dayMasterStrength = dayMasterInfo
+    ? calculateDayMasterStrength(dayMasterInfo.element, fiveElements)
+    : null;
+  const favorableElements =
+    dayMasterInfo && dayMasterStrength
+      ? calculateFavorableElements(dayMasterInfo.element, dayMasterStrength)
+      : null;
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 mb-8 border border-gray-200">
+      {/* 日主五行 */}
+      {dayMasterInfo && dayMasterStrength && (
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-center mb-4 text-ink-black">
+            日主五行 Day Master
+          </h2>
+          <div className="flex justify-center items-center gap-6">
+            <div
+              className={`${ELEMENT_COLORS[dayMasterInfo.element].bg} ${ELEMENT_COLORS[dayMasterInfo.element].border} border-2 rounded-xl p-6 text-center`}
+            >
+              <div
+                className={`text-4xl font-bold ${ELEMENT_COLORS[dayMasterInfo.element].text} mb-2`}
+              >
+                {dayMasterInfo.displayName}
+              </div>
+              <div className="text-sm text-gray-600">日主</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-ink-black mb-1">
+                {dayMasterStrength.strengthLabel}
+              </div>
+              <div className="text-sm text-gray-500">
+                同類 {dayMasterStrength.sameTypeCount} / 異類{' '}
+                {dayMasterStrength.differentTypeCount}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 喜神忌神 */}
+      {favorableElements && (
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-center mb-4 text-ink-black">
+            喜神忌神 Favorable Elements
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
+            {/* 喜神 */}
+            <div className="bg-emerald-50 border-2 border-emerald-300 rounded-lg p-4">
+              <div className="text-center mb-3">
+                <span className="text-lg font-bold text-emerald-700">喜神</span>
+                <span className="text-sm text-emerald-600 ml-2">Favorable</span>
+              </div>
+              <div className="flex justify-center gap-2">
+                {favorableElements.favorable.map((element) => (
+                  <div
+                    key={element}
+                    className={`${ELEMENT_COLORS[element].bg} ${ELEMENT_COLORS[element].border} border-2 rounded-lg px-4 py-2`}
+                  >
+                    <span
+                      className={`text-2xl font-bold ${ELEMENT_COLORS[element].text}`}
+                    >
+                      {element}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* 忌神 */}
+            <div className="bg-rose-50 border-2 border-rose-300 rounded-lg p-4">
+              <div className="text-center mb-3">
+                <span className="text-lg font-bold text-rose-700">忌神</span>
+                <span className="text-sm text-rose-600 ml-2">Unfavorable</span>
+              </div>
+              <div className="flex justify-center gap-2">
+                {favorableElements.unfavorable.map((element) => (
+                  <div
+                    key={element}
+                    className={`${ELEMENT_COLORS[element].bg} ${ELEMENT_COLORS[element].border} border-2 rounded-lg px-4 py-2`}
+                  >
+                    <span
+                      className={`text-2xl font-bold ${ELEMENT_COLORS[element].text}`}
+                    >
+                      {element}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="text-center mt-3 text-sm text-gray-600">
+            {favorableElements.explanation}
+          </div>
+        </div>
+      )}
+
       <h2 className="text-2xl font-bold text-center mb-6 text-ink-black">
         五行分佈 Five Elements
       </h2>
@@ -108,9 +210,7 @@ const FiveElementsDisplay: React.FC<{ result: BaZiResultType }> = ({ result }) =
 
       {missingElements.length === 0 && (
         <div className="bg-emerald-50 border-2 border-emerald-200 rounded-lg p-4 text-center">
-          <div className="text-lg font-bold text-emerald-800">
-            五行俱全
-          </div>
+          <div className="text-lg font-bold text-emerald-800">五行俱全</div>
         </div>
       )}
     </div>
@@ -174,9 +274,6 @@ export const BaZiResult: React.FC<BaZiResultProps> = ({ result }) => {
         </div>
       )}
 
-      {/* 五行分佈 */}
-      <FiveElementsDisplay result={result} />
-
       {/* 四柱展示 */}
       <div className="mb-8">
         <h2 className="text-3xl font-bold text-center mb-8 text-ink-black">
@@ -190,6 +287,9 @@ export const BaZiResult: React.FC<BaZiResultProps> = ({ result }) => {
           <PillarCard title="年柱 Year" pillar={result.yearPillar} />
         </div>
       </div>
+
+      {/* 五行分佈 */}
+      <FiveElementsDisplay result={result} />
 
       {/* 印章裝飾 */}
       <div className="flex justify-center mt-8">
