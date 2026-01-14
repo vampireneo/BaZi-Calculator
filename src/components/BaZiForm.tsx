@@ -1,9 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { BirthInfo } from '../utils/baziHelper';
 import { CITIES, getCityByKey, getDefaultCity } from '../utils/cities';
 
+const BAZI_FORM_DATA_KEY = 'baziCalculator_formData';
+
 interface BaZiFormProps {
   onCalculate: (birthInfo: BirthInfo) => void;
+}
+
+interface SavedFormData {
+  gender: 'male' | 'female';
+  year: string;
+  month: string;
+  day: string;
+  hour: string;
+  minute: string;
+  cityKey: string;
 }
 
 export const BaZiForm: React.FC<BaZiFormProps> = ({ onCalculate }) => {
@@ -14,6 +26,77 @@ export const BaZiForm: React.FC<BaZiFormProps> = ({ onCalculate }) => {
   const [hour, setHour] = useState<string>('');
   const [minute, setMinute] = useState<string>('');
   const [cityKey, setCityKey] = useState<string>(getDefaultCity().key);
+  const isInitialMount = useRef(true);
+
+  // 從 localStorage 載入已保存的表單資料
+  useEffect(() => {
+    try {
+      const savedData = localStorage.getItem(BAZI_FORM_DATA_KEY);
+      if (savedData) {
+        const formData: SavedFormData = JSON.parse(savedData);
+
+        // 恢復表單欄位
+        setGender(formData.gender);
+        setYear(formData.year);
+        setMonth(formData.month);
+        setDay(formData.day);
+        setHour(formData.hour);
+        setMinute(formData.minute);
+        setCityKey(formData.cityKey || getDefaultCity().key);
+
+        // 如果所有必填欄位都有值，自動計算命盤
+        if (
+          formData.year &&
+          formData.month &&
+          formData.day &&
+          formData.hour &&
+          formData.minute
+        ) {
+          // 延遲執行以確保狀態已更新
+          setTimeout(() => {
+            const selectedCity = getCityByKey(formData.cityKey) || getDefaultCity();
+            const birthInfo: BirthInfo = {
+              gender: formData.gender,
+              year: parseInt(formData.year),
+              month: parseInt(formData.month),
+              day: parseInt(formData.day),
+              hour: parseInt(formData.hour),
+              minute: parseInt(formData.minute),
+              city: selectedCity,
+            };
+            onCalculate(birthInfo);
+          }, 100);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load saved form data:', error);
+    }
+  }, [onCalculate]);
+
+  // 當表單資料變更時，保存到 localStorage
+  useEffect(() => {
+    // 跳過初次掛載時的保存
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    const formData: SavedFormData = {
+      gender,
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      cityKey,
+    };
+
+    try {
+      localStorage.setItem(BAZI_FORM_DATA_KEY, JSON.stringify(formData));
+    } catch (error) {
+      console.error('Failed to save form data:', error);
+    }
+  }, [gender, year, month, day, hour, minute, cityKey]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
