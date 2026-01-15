@@ -126,8 +126,101 @@ npx vitest run src/utils/baziHelper.test.ts
 - Default location: Hong Kong (for solar time calculations)
 - Supported year range: 1900-2100
 
+## File Organization
+
+```
+src/
+├── components/
+│   ├── BaZiForm.tsx         # Input form with gender, date/time, city selection
+│   └── BaZiResult.tsx       # Result display with pillars, Ten Gods, Five Elements
+├── utils/
+│   ├── baziHelper.ts        # Core BaZi calculation logic
+│   │                        # - calculateBaZi(): main calculation function
+│   │                        # - calculateHiddenStemsTenGods(): hidden stems Ten Gods
+│   ├── fiveElements.ts      # Five Elements and Ten Gods calculations
+│   │                        # - calculateTenGod(): Ten Gods for individual stem
+│   │                        # - calculatePillarTenGods(): Ten Gods for all pillars
+│   │                        # - calculateDayMasterStrength(): day master analysis
+│   │                        # - calculateFavorableElements(): favorable/unfavorable elements
+│   ├── trueSolarTime.ts     # True solar time correction
+│   │                        # - calculateTrueSolarTime(): main correction function
+│   ├── cities.ts            # City database with longitude and timezone
+│   └── chineseConverter.ts  # Simplified to Traditional Chinese conversion
+└── __tests__/               # Test files mirror src/ structure
+```
+
+## Testing
+
+The project has comprehensive test coverage using Vitest:
+
+**Test Files**:
+- `baziHelper.test.ts`: Core BaZi calculation tests
+- `fiveElements.test.ts`: Five Elements and Ten Gods logic tests
+- `trueSolarTime.test.ts`: True solar time correction tests
+
+**Key Test Areas**:
+- Ten Gods calculation for all 10 types
+- Hidden stems extraction and Ten Gods mapping
+- Day Master strength calculation
+- Five Elements distribution
+- True solar time correction (longitude + DST)
+
+**Running Tests**:
+```bash
+npm run test        # Watch mode
+npm run test:run    # Single run
+npx vitest run src/utils/baziHelper.test.ts  # Single file
+```
+
+## Implementation Notes
+
+### Hidden Stems Ten Gods (New Feature)
+
+The hidden stems Ten Gods feature (藏干十神) is a unique implementation:
+
+1. **Data Flow**:
+   - `getHiddenStems()` extracts hidden stems from each earthly branch
+   - `calculateHiddenStemsTenGods()` computes Ten Gods for all hidden stems
+   - Each pillar stores both `hiddenStems[]` and `hiddenStemsWithTenGods[]`
+
+2. **Display Logic**:
+   - Primary stars (主星) shown above pillar in purple badge
+   - Secondary stars (副星) shown below pillar with stem + Ten God label
+   - Day pillar shows gender instead of Ten God
+
+3. **Calculation Timing**:
+   - Hidden stems Ten Gods calculated after pillars are constructed
+   - Uses day pillar's heavenly stem as the Day Master reference
+   - Applied to all four pillars including day pillar
+
+### True Solar Time Correction
+
+The true solar time correction ensures accurate time pillar calculation:
+
+1. **Correction Components**:
+   - **DST Offset**: Detected via Luxon using IANA timezone database
+   - **Longitude Offset**: Calculated as (longitude - 120) / 15 * 60 minutes
+   - Reference meridian: 120°E (China Standard Time)
+
+2. **City Selection**:
+   - Multiple cities pre-configured with coordinates and timezones
+   - Fallback to Hong Kong if no city selected
+   - Each city has: name, longitude, latitude, IANA timezone
+
+3. **Display Information**:
+   - Shows corrected time, DST status, and offset values
+   - Helps users understand why time pillar may differ from input time
+
 ## Language
 
 - UI text is bilingual (Traditional Chinese primary, English secondary)
 - Code comments are in Traditional Chinese
 - Use `chineseConverter.ts` for Simplified → Traditional conversion when needed
+
+## Common Pitfalls
+
+1. **Don't forget Day Master reference**: All Ten Gods calculations must use day pillar's heavenly stem
+2. **Hidden stems order matters**: First hidden stem is usually the primary qi (本氣)
+3. **Year pillar boundary**: Use 立春 (Start of Spring), not January 1st
+4. **True solar time is required**: Standard time will give incorrect hour pillars for some locations
+5. **Yin/Yang polarity is crucial**: Same element but different polarity gives different Ten Gods
