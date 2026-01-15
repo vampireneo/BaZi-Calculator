@@ -10,8 +10,10 @@ import { convertToTraditional } from './chineseConverter';
 import {
   calculateFiveElements,
   calculatePillarTenGods,
+  calculateTenGod,
   type FiveElementsCount,
   type PillarTenGods,
+  type TenGod,
 } from './fiveElements';
 
 export interface BirthInfo {
@@ -24,10 +26,16 @@ export interface BirthInfo {
   city?: City; // 可選的城市資料，用於真太陽時計算
 }
 
+export interface HiddenStemWithTenGod {
+  stem: string;
+  tenGod: TenGod | null;
+}
+
 export interface Pillar {
   heavenlyStem: string;
   earthlyBranch: string;
   hiddenStems?: string[];
+  hiddenStemsWithTenGods?: HiddenStemWithTenGod[];
 }
 
 export interface BaZiResult {
@@ -134,6 +142,25 @@ export function calculateBaZi(birthInfo: BirthInfo): BaZiResult {
     hourPillar,
   ]);
 
+  // 計算藏干十神（使用日柱天干作為日主）
+  const dayMasterStem = dayPillar.heavenlyStem;
+  yearPillar.hiddenStemsWithTenGods = calculateHiddenStemsTenGods(
+    yearPillar.hiddenStems,
+    dayMasterStem
+  );
+  monthPillar.hiddenStemsWithTenGods = calculateHiddenStemsTenGods(
+    monthPillar.hiddenStems,
+    dayMasterStem
+  );
+  dayPillar.hiddenStemsWithTenGods = calculateHiddenStemsTenGods(
+    dayPillar.hiddenStems,
+    dayMasterStem
+  );
+  hourPillar.hiddenStemsWithTenGods = calculateHiddenStemsTenGods(
+    hourPillar.hiddenStems,
+    dayMasterStem
+  );
+
   return {
     solarDate: solarTime.getSolarDay().toString(),
     lunarDate: convertToTraditional(lunarDay.toString()),
@@ -166,6 +193,26 @@ function getHiddenStems(earthlyBranch: EarthBranch): string[] {
   return hideHeavenStems.map((hideHeavenStem) =>
     hideHeavenStem.getHeavenStem().getName()
   );
+}
+
+/**
+ * 為藏干計算十神
+ * @param hiddenStems 藏干數組
+ * @param dayMasterStem 日主天干
+ * @returns 藏干與十神的組合數組
+ */
+function calculateHiddenStemsTenGods(
+  hiddenStems: string[] | undefined,
+  dayMasterStem: string
+): HiddenStemWithTenGod[] {
+  if (!hiddenStems || hiddenStems.length === 0) {
+    return [];
+  }
+
+  return hiddenStems.map((stem) => ({
+    stem,
+    tenGod: calculateTenGod(stem, dayMasterStem),
+  }));
 }
 
 /**

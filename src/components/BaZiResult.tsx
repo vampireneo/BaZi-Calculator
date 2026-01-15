@@ -60,13 +60,24 @@ const PillarCard: React.FC<{ title: string; pillar: Pillar; tenGod?: TenGod | nu
         </div>
       </div>
 
-      {/* 藏干 */}
-      {pillar.hiddenStems && pillar.hiddenStems.length > 0 && (
+      {/* 藏干與十神 */}
+      {pillar.hiddenStemsWithTenGods && pillar.hiddenStemsWithTenGods.length > 0 && (
         <div className="mt-4 pt-4 border-t border-gray-200">
           <div className="text-center">
-            <div className="text-xs text-gray-500 mb-1">藏干</div>
-            <div className="text-sm font-medium text-gray-700">
-              {pillar.hiddenStems.join(' ')}
+            <div className="text-xs text-gray-500 mb-2">藏干</div>
+            <div className="flex flex-col gap-1">
+              {pillar.hiddenStemsWithTenGods.map((hiddenStem, index) => (
+                <div key={index} className="flex items-center justify-center gap-2">
+                  <span className="text-sm font-medium text-gray-700">
+                    {hiddenStem.stem}
+                  </span>
+                  {hiddenStem.tenGod && (
+                    <span className="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded border border-purple-200">
+                      {hiddenStem.tenGod}
+                    </span>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </div>
