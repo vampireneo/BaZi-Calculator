@@ -1,5 +1,5 @@
 import React from 'react';
-import type { BaZiResult as BaZiResultType, Pillar } from '../utils/baziHelper';
+import type { BaZiResult as BaZiResultType, Pillar, BaZiShenSha } from '../utils/baziHelper';
 import {
   getFiveElementStrength,
   getMissingElements,
@@ -248,6 +248,90 @@ const FiveElementsDisplay: React.FC<{ result: BaZiResultType }> = ({ result }) =
   );
 };
 
+// 神煞類型顏色配置
+const SHENSHA_TYPE_COLORS = {
+  吉: {
+    bg: 'bg-emerald-50',
+    border: 'border-emerald-300',
+    text: 'text-emerald-800',
+    badge: 'bg-emerald-100 border-emerald-300',
+  },
+  中: {
+    bg: 'bg-amber-50',
+    border: 'border-amber-300',
+    text: 'text-amber-800',
+    badge: 'bg-amber-100 border-amber-300',
+  },
+  凶: {
+    bg: 'bg-rose-50',
+    border: 'border-rose-300',
+    text: 'text-rose-800',
+    badge: 'bg-rose-100 border-rose-300',
+  },
+};
+
+const ShenShaDisplay: React.FC<{ shenSha: BaZiShenSha[] }> = ({ shenSha }) => {
+  // 分離吉神、中性、凶神
+  const auspicious = shenSha.filter((s) => s.type === '吉');
+  const neutral = shenSha.filter((s) => s.type === '中');
+  const inauspicious = shenSha.filter((s) => s.type === '凶');
+
+  const renderShenShaGroup = (
+    items: BaZiShenSha[],
+    title: string,
+    subtitle: string,
+    colorKey: '吉' | '中' | '凶'
+  ) => {
+    const colors = SHENSHA_TYPE_COLORS[colorKey];
+    return (
+      <div className={`${colors.bg} border-2 ${colors.border} rounded-lg p-4`}>
+        <div className="text-center mb-4">
+          <span className={`text-lg font-bold ${colors.text}`}>{title}</span>
+          <span className={`text-sm ${colors.text} opacity-70 ml-2`}>{subtitle}</span>
+        </div>
+        <div className="space-y-3">
+          {items.length > 0 ? (
+            items.map((s, index) => (
+              <div
+                key={index}
+                className={`${colors.badge} border rounded-lg p-3`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className={`font-bold ${colors.text}`}>{s.name}</span>
+                  <span className="text-xs text-gray-500">
+                    {s.positions.join('、')}
+                  </span>
+                </div>
+                <div className="text-xs text-gray-600">{s.description}</div>
+              </div>
+            ))
+          ) : (
+            <div className="text-center text-gray-500 text-sm py-2">無</div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-lg p-6 mb-8 border border-gray-200">
+      <h2 className="text-2xl font-bold text-center mb-6 text-ink-black">
+        八字神煞 BaZi Shen Sha
+      </h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {renderShenShaGroup(auspicious, '吉神', 'Auspicious', '吉')}
+        {renderShenShaGroup(neutral, '中性', 'Neutral', '中')}
+        {renderShenShaGroup(inauspicious, '凶神', 'Inauspicious', '凶')}
+      </div>
+
+      <div className="text-center mt-4 text-sm text-gray-500">
+        共 {shenSha.length} 個神煞（吉 {auspicious.length} / 中 {neutral.length} / 凶 {inauspicious.length}）
+      </div>
+    </div>
+  );
+};
+
 export const BaZiResult: React.FC<BaZiResultProps> = ({ result }) => {
   return (
     <div className="w-full max-w-6xl mx-auto mt-12 animate-fade-in">
@@ -321,6 +405,9 @@ export const BaZiResult: React.FC<BaZiResultProps> = ({ result }) => {
 
       {/* 五行分佈 */}
       <FiveElementsDisplay result={result} />
+
+      {/* 神煞 */}
+      <ShenShaDisplay shenSha={result.shenSha} />
 
       {/* 印章裝飾 */}
       <div className="flex justify-center mt-8">
