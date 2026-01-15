@@ -7,18 +7,29 @@ import {
   calculateDayMasterStrength,
   calculateFavorableElements,
 } from '../utils/fiveElements';
-import type { FiveElement } from '../utils/fiveElements';
+import type { FiveElement, TenGod } from '../utils/fiveElements';
 
 interface BaZiResultProps {
   result: BaZiResultType;
 }
 
-const PillarCard: React.FC<{ title: string; pillar: Pillar }> = ({ title, pillar }) => {
+const PillarCard: React.FC<{ title: string; pillar: Pillar; tenGod?: TenGod | null }> = ({ title, pillar, tenGod }) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-6 border-2 border-gray-200 hover:border-ink-red transition-all duration-300 transform hover:scale-105">
       <div className="text-center mb-4">
         <h3 className="text-lg font-semibold text-gray-600">{title}</h3>
       </div>
+
+      {/* 十神 */}
+      {tenGod && (
+        <div className="mb-3">
+          <div className="text-center">
+            <div className="inline-block bg-purple-100 border-2 border-purple-300 rounded-lg px-3 py-1">
+              <span className="text-lg font-bold text-purple-700">{tenGod}</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 天干 */}
       <div className="mb-4">
@@ -281,10 +292,10 @@ export const BaZiResult: React.FC<BaZiResultProps> = ({ result }) => {
         </h2>
 
         <div className="grid grid-cols-4 gap-2 md:gap-6">
-          <PillarCard title="時柱 Hour" pillar={result.hourPillar} />
-          <PillarCard title="日柱 Day" pillar={result.dayPillar} />
-          <PillarCard title="月柱 Month" pillar={result.monthPillar} />
-          <PillarCard title="年柱 Year" pillar={result.yearPillar} />
+          <PillarCard title="時柱 Hour" pillar={result.hourPillar} tenGod={result.tenGods.hour} />
+          <PillarCard title="日柱 Day" pillar={result.dayPillar} tenGod={result.tenGods.day} />
+          <PillarCard title="月柱 Month" pillar={result.monthPillar} tenGod={result.tenGods.month} />
+          <PillarCard title="年柱 Year" pillar={result.yearPillar} tenGod={result.tenGods.year} />
         </div>
       </div>
 

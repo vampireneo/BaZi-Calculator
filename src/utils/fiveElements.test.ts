@@ -9,6 +9,8 @@ import {
   getDayMasterInfo,
   calculateDayMasterStrength,
   calculateFavorableElements,
+  calculateTenGod,
+  calculatePillarTenGods,
 } from './fiveElements';
 
 describe('五行計算測試', () => {
@@ -301,6 +303,149 @@ describe('五行計算測試', () => {
       expect(result.unfavorable).toContain('土');
 
       expect(result.explanation).toBe('日主偏弱，喜生扶，忌洩耗');
+    });
+  });
+
+  describe('calculateTenGod', () => {
+    it('應該正確識別比肩（同五行同陰陽）', () => {
+      // 甲（陽木）對甲（陽木）= 比肩
+      expect(calculateTenGod('甲', '甲')).toBe('比肩');
+      // 乙（陰木）對乙（陰木）= 比肩
+      expect(calculateTenGod('乙', '乙')).toBe('比肩');
+    });
+
+    it('應該正確識別劫財（同五行異陰陽）', () => {
+      // 甲（陽木）對乙（陰木）= 劫財
+      expect(calculateTenGod('甲', '乙')).toBe('劫財');
+      // 乙（陰木）對甲（陽木）= 劫財
+      expect(calculateTenGod('乙', '甲')).toBe('劫財');
+    });
+
+    it('應該正確識別食神（我生，同陰陽）', () => {
+      // 日主甲（陽木）生丙（陽火）= 食神
+      expect(calculateTenGod('丙', '甲')).toBe('食神');
+      // 日主乙（陰木）生丁（陰火）= 食神
+      expect(calculateTenGod('丁', '乙')).toBe('食神');
+    });
+
+    it('應該正確識別傷官（我生，異陰陽）', () => {
+      // 日主甲（陽木）生丁（陰火）= 傷官
+      expect(calculateTenGod('丁', '甲')).toBe('傷官');
+      // 日主乙（陰木）生丙（陽火）= 傷官
+      expect(calculateTenGod('丙', '乙')).toBe('傷官');
+    });
+
+    it('應該正確識別偏財（我克，同陰陽）', () => {
+      // 日主甲（陽木）克戊（陽土）= 偏財
+      expect(calculateTenGod('戊', '甲')).toBe('偏財');
+      // 日主乙（陰木）克己（陰土）= 偏財
+      expect(calculateTenGod('己', '乙')).toBe('偏財');
+    });
+
+    it('應該正確識別正財（我克，異陰陽）', () => {
+      // 日主甲（陽木）克己（陰土）= 正財
+      expect(calculateTenGod('己', '甲')).toBe('正財');
+      // 日主乙（陰木）克戊（陽土）= 正財
+      expect(calculateTenGod('戊', '乙')).toBe('正財');
+    });
+
+    it('應該正確識別七殺（克我，同陰陽）', () => {
+      // 日主甲（陽木）被庚（陽金）克 = 七殺
+      expect(calculateTenGod('庚', '甲')).toBe('七殺');
+      // 日主乙（陰木）被辛（陰金）克 = 七殺
+      expect(calculateTenGod('辛', '乙')).toBe('七殺');
+    });
+
+    it('應該正確識別正官（克我，異陰陽）', () => {
+      // 日主甲（陽木）被辛（陰金）克 = 正官
+      expect(calculateTenGod('辛', '甲')).toBe('正官');
+      // 日主乙（陰木）被庚（陽金）克 = 正官
+      expect(calculateTenGod('庚', '乙')).toBe('正官');
+    });
+
+    it('應該正確識別偏印（生我，同陰陽）', () => {
+      // 日主甲（陽木）被壬（陽水）生 = 偏印
+      expect(calculateTenGod('壬', '甲')).toBe('偏印');
+      // 日主乙（陰木）被癸（陰水）生 = 偏印
+      expect(calculateTenGod('癸', '乙')).toBe('偏印');
+    });
+
+    it('應該正確識別正印（生我，異陰陽）', () => {
+      // 日主甲（陽木）被癸（陰水）生 = 正印
+      expect(calculateTenGod('癸', '甲')).toBe('正印');
+      // 日主乙（陰木）被壬（陽水）生 = 正印
+      expect(calculateTenGod('壬', '乙')).toBe('正印');
+    });
+
+    it('對於無效輸入應該返回 null', () => {
+      expect(calculateTenGod('無效', '甲')).toBe(null);
+      expect(calculateTenGod('甲', '無效')).toBe(null);
+    });
+  });
+
+  describe('calculatePillarTenGods', () => {
+    it('應該正確計算四柱十神', () => {
+      // 例：年柱庚（金），月柱壬（水），日柱甲（木），時柱丙（火）
+      // 日主甲木（陽木）
+      // 庚（陽金）克甲（陽木）= 七殺
+      // 壬（陽水）生甲（陽木）= 偏印
+      // 甲（陽木）是日主 = null
+      // 丙（陽火）被甲（陽木）生 = 食神
+      const pillars = [
+        { heavenlyStem: '庚' }, // 年柱
+        { heavenlyStem: '壬' }, // 月柱
+        { heavenlyStem: '甲' }, // 日柱
+        { heavenlyStem: '丙' }, // 時柱
+      ];
+
+      const result = calculatePillarTenGods(pillars);
+
+      expect(result.year).toBe('七殺');
+      expect(result.month).toBe('偏印');
+      expect(result.day).toBe(null);
+      expect(result.hour).toBe('食神');
+    });
+
+    it('應該正確處理包含劫財和正官的八字', () => {
+      // 日主己土（陰土）
+      // 戊（陽土）對己（陰土）= 劫財
+      // 甲（陽木）克己（陰土）= 正官（木克土，異陰陽）
+      // 己（陰土）是日主 = null
+      // 辛（陰金）被己（陰土）生 = 食神
+      const pillars = [
+        { heavenlyStem: '戊' }, // 年柱 - 劫財
+        { heavenlyStem: '甲' }, // 月柱 - 正官
+        { heavenlyStem: '己' }, // 日柱 - 日主
+        { heavenlyStem: '辛' }, // 時柱 - 食神
+      ];
+
+      const result = calculatePillarTenGods(pillars);
+
+      expect(result.year).toBe('劫財');
+      expect(result.month).toBe('正官');
+      expect(result.day).toBe(null);
+      expect(result.hour).toBe('食神');
+    });
+
+    it('應該正確處理日主為水的八字', () => {
+      // 日主壬水（陽水）
+      // 甲（陽木）被壬（陽水）生 = 食神
+      // 戊（陽土）克壬（陽水）= 七殺
+      // 壬（陽水）是日主 = null
+      // 庚（陽金）生壬（陽水）= 偏印
+      const pillars = [
+        { heavenlyStem: '甲' }, // 年柱 - 食神
+        { heavenlyStem: '戊' }, // 月柱 - 七殺
+        { heavenlyStem: '壬' }, // 日柱 - 日主
+        { heavenlyStem: '庚' }, // 時柱 - 偏印
+      ];
+
+      const result = calculatePillarTenGods(pillars);
+
+      expect(result.year).toBe('食神');
+      expect(result.month).toBe('七殺');
+      expect(result.day).toBe(null);
+      expect(result.hour).toBe('偏印');
     });
   });
 });
