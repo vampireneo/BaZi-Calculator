@@ -4,7 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-BaZi Calculator (八字排盤) is a Chinese astrology web application that calculates the Four Pillars of Destiny based on birth date/time. It uses traditional Chinese calendar calculations with true solar time corrections, and provides Five Elements (五行) analysis including Day Master strength and favorable/unfavorable elements.
+BaZi Calculator (八字排盤) is a comprehensive Chinese astrology web application that calculates the Four Pillars of Destiny based on birth date/time and location. It uses traditional Chinese calendar calculations with true solar time corrections (longitude + DST), and provides complete analysis including:
+
+- **Four Pillars (四柱)**: Year, Month, Day, Hour pillars with Heavenly Stems and Earthly Branches
+- **Ten Gods (十神)**: Both primary stars (天干) and secondary stars (藏干/hidden stems) relationships
+- **Five Elements (五行)**: Complete distribution analysis with strength indicators
+- **Day Master (日主)**: Strength calculation and analysis (strong/weak determination)
+- **Favorable Elements (喜神/忌神)**: Automatic calculation based on Day Master strength
+- **True Solar Time (真太陽時)**: Precise time correction based on longitude and DST
 
 ## Commands
 
@@ -33,13 +40,17 @@ npx vitest run src/utils/baziHelper.test.ts
 3. **BaZi Calculation** (`baziHelper.ts`) → uses `tyme4ts` library to compute:
    - Four Pillars (Year, Month, Day, Hour)
    - Hidden Stems for each Earthly Branch
+   - Ten Gods (十神) for Heavenly Stems and Hidden Stems
    - Lunar calendar date
    - Five Elements distribution
-4. **Five Elements Analysis** (`fiveElements.ts`) → calculates:
+4. **Ten Gods Calculation** (`fiveElements.ts`) → calculates:
+   - Ten Gods (十神) relationships based on Five Elements interactions
+   - Both primary stems (天干) and hidden stems (藏干) Ten Gods
+5. **Five Elements Analysis** (`fiveElements.ts`) → calculates:
    - Day Master (日主) from Day Pillar's Heavenly Stem
    - Day Master Strength (日主強弱) based on supporting vs draining elements
    - Favorable Elements (喜神) and Unfavorable Elements (忌神)
-5. **Result Display** (`BaZiResult.tsx`) → shows pillars, Day Master analysis, and Five Elements
+6. **Result Display** (`BaZiResult.tsx`) → shows pillars, Ten Gods, Day Master analysis, and Five Elements
 
 ### Key Dependencies
 
@@ -50,10 +61,13 @@ npx vitest run src/utils/baziHelper.test.ts
 ### Data Structures
 
 - `BirthInfo`: Input data (gender, date, time, optional city)
-- `Pillar`: Heavenly Stem + Earthly Branch + Hidden Stems
-- `BaZiResult`: Complete calculation output including solar/lunar dates, pillars, five elements count, and correction info
+- `Pillar`: Heavenly Stem + Earthly Branch + Hidden Stems + Hidden Stems with Ten Gods
+- `HiddenStemWithTenGod`: Hidden stem paired with its Ten God relationship
+- `BaZiResult`: Complete calculation output including solar/lunar dates, pillars, ten gods, five elements count, and correction info
 - `City`: Location data with longitude and IANA timezone for solar time calculation
 - `FiveElementsCount`: Count of each Five Element (金木水火土) in the chart
+- `TenGod`: Ten Gods types (比肩, 劫財, 食神, 傷官, 偏財, 正財, 七殺, 正官, 偏印, 正印)
+- `PillarTenGods`: Ten Gods for each pillar's heavenly stem (year, month, day=null, hour)
 - `DayMasterInfo`: Day Master stem, element, and display name (e.g., "己土")
 - `DayMasterStrength`: Day Master strength analysis (same-type vs different-type count)
 - `FavorableElements`: Favorable (喜神) and unfavorable (忌神) elements based on Day Master strength
@@ -76,6 +90,35 @@ npx vitest run src/utils/baziHelper.test.ts
 - 火 (Fire): Red
 - 土 (Earth): Amber
 
+### Ten Gods Calculation Rules
+
+**Ten Gods (十神)** represent the relationships between stems based on Five Elements interactions and yin/yang polarity:
+
+**Same Element**:
+- Same polarity → **比肩** (Siblings/Equals)
+- Different polarity → **劫財** (Robbery of Wealth)
+
+**Day Master Generates (我生)**:
+- Same polarity → **食神** (Eating God)
+- Different polarity → **傷官** (Hurting Officer)
+
+**Day Master Controls (我克)**:
+- Same polarity → **偏財** (Partial Wealth)
+- Different polarity → **正財** (Direct Wealth)
+
+**Controls Day Master (克我)**:
+- Same polarity → **七殺** (Seven Killings)
+- Different polarity → **正官** (Direct Officer)
+
+**Generates Day Master (生我)**:
+- Same polarity → **偏印** (Partial Seal)
+- Different polarity → **正印** (Direct Seal)
+
+**Ten Gods Display**:
+- Primary Stars (主星): Ten Gods for heavenly stems in year, month, and hour pillars
+- Secondary Stars (副星): Ten Gods for hidden stems (藏干) in all earthly branches
+- Day pillar has no Ten God as it represents the Day Master (日主) itself
+
 ### Important Calculation Rules
 
 - Year pillar boundary: 立春 (Start of Spring) around Feb 4, not Jan 1
@@ -83,8 +126,101 @@ npx vitest run src/utils/baziHelper.test.ts
 - Default location: Hong Kong (for solar time calculations)
 - Supported year range: 1900-2100
 
+## File Organization
+
+```
+src/
+├── components/
+│   ├── BaZiForm.tsx         # Input form with gender, date/time, city selection
+│   └── BaZiResult.tsx       # Result display with pillars, Ten Gods, Five Elements
+├── utils/
+│   ├── baziHelper.ts        # Core BaZi calculation logic
+│   │                        # - calculateBaZi(): main calculation function
+│   │                        # - calculateHiddenStemsTenGods(): hidden stems Ten Gods
+│   ├── fiveElements.ts      # Five Elements and Ten Gods calculations
+│   │                        # - calculateTenGod(): Ten Gods for individual stem
+│   │                        # - calculatePillarTenGods(): Ten Gods for all pillars
+│   │                        # - calculateDayMasterStrength(): day master analysis
+│   │                        # - calculateFavorableElements(): favorable/unfavorable elements
+│   ├── trueSolarTime.ts     # True solar time correction
+│   │                        # - calculateTrueSolarTime(): main correction function
+│   ├── cities.ts            # City database with longitude and timezone
+│   └── chineseConverter.ts  # Simplified to Traditional Chinese conversion
+└── __tests__/               # Test files mirror src/ structure
+```
+
+## Testing
+
+The project has comprehensive test coverage using Vitest:
+
+**Test Files**:
+- `baziHelper.test.ts`: Core BaZi calculation tests
+- `fiveElements.test.ts`: Five Elements and Ten Gods logic tests
+- `trueSolarTime.test.ts`: True solar time correction tests
+
+**Key Test Areas**:
+- Ten Gods calculation for all 10 types
+- Hidden stems extraction and Ten Gods mapping
+- Day Master strength calculation
+- Five Elements distribution
+- True solar time correction (longitude + DST)
+
+**Running Tests**:
+```bash
+npm run test        # Watch mode
+npm run test:run    # Single run
+npx vitest run src/utils/baziHelper.test.ts  # Single file
+```
+
+## Implementation Notes
+
+### Hidden Stems Ten Gods (New Feature)
+
+The hidden stems Ten Gods feature (藏干十神) is a unique implementation:
+
+1. **Data Flow**:
+   - `getHiddenStems()` extracts hidden stems from each earthly branch
+   - `calculateHiddenStemsTenGods()` computes Ten Gods for all hidden stems
+   - Each pillar stores both `hiddenStems[]` and `hiddenStemsWithTenGods[]`
+
+2. **Display Logic**:
+   - Primary stars (主星) shown above pillar in purple badge
+   - Secondary stars (副星) shown below pillar with stem + Ten God label
+   - Day pillar shows gender instead of Ten God
+
+3. **Calculation Timing**:
+   - Hidden stems Ten Gods calculated after pillars are constructed
+   - Uses day pillar's heavenly stem as the Day Master reference
+   - Applied to all four pillars including day pillar
+
+### True Solar Time Correction
+
+The true solar time correction ensures accurate time pillar calculation:
+
+1. **Correction Components**:
+   - **DST Offset**: Detected via Luxon using IANA timezone database
+   - **Longitude Offset**: Calculated as (longitude - 120) / 15 * 60 minutes
+   - Reference meridian: 120°E (China Standard Time)
+
+2. **City Selection**:
+   - Multiple cities pre-configured with coordinates and timezones
+   - Fallback to Hong Kong if no city selected
+   - Each city has: name, longitude, latitude, IANA timezone
+
+3. **Display Information**:
+   - Shows corrected time, DST status, and offset values
+   - Helps users understand why time pillar may differ from input time
+
 ## Language
 
 - UI text is bilingual (Traditional Chinese primary, English secondary)
 - Code comments are in Traditional Chinese
 - Use `chineseConverter.ts` for Simplified → Traditional conversion when needed
+
+## Common Pitfalls
+
+1. **Don't forget Day Master reference**: All Ten Gods calculations must use day pillar's heavenly stem
+2. **Hidden stems order matters**: First hidden stem is usually the primary qi (本氣)
+3. **Year pillar boundary**: Use 立春 (Start of Spring), not January 1st
+4. **True solar time is required**: Standard time will give incorrect hour pillars for some locations
+5. **Yin/Yang polarity is crucial**: Same element but different polarity gives different Ten Gods
