@@ -623,6 +623,37 @@ const SHIE_DABAI: string[] = [
   '癸亥',
 ];
 
+// 有效的天干和地支常量（用於輸入驗證）
+const VALID_STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+const VALID_BRANCHES = [
+  '子',
+  '丑',
+  '寅',
+  '卯',
+  '辰',
+  '巳',
+  '午',
+  '未',
+  '申',
+  '酉',
+  '戌',
+  '亥',
+];
+
+/**
+ * 驗證天干是否有效
+ */
+function isValidStem(stem: string): boolean {
+  return VALID_STEMS.includes(stem);
+}
+
+/**
+ * 驗證地支是否有效
+ */
+function isValidBranch(branch: string): boolean {
+  return VALID_BRANCHES.includes(branch);
+}
+
 /**
  * 計算八字神煞
  * @param yearPillar 年柱
@@ -644,6 +675,34 @@ export function calculateBaZiShenSha(
   const monthBranch = monthPillar.earthlyBranch;
   const hourBranch = hourPillar.earthlyBranch;
 
+  // 輸入驗證：檢查所有天干地支是否有效
+  const stems = [
+    { value: yearPillar.heavenlyStem, name: '年干' },
+    { value: monthPillar.heavenlyStem, name: '月干' },
+    { value: dayStem, name: '日干' },
+    { value: hourPillar.heavenlyStem, name: '時干' },
+  ];
+  const branches = [
+    { value: yearBranch, name: '年支' },
+    { value: monthBranch, name: '月支' },
+    { value: dayBranch, name: '日支' },
+    { value: hourBranch, name: '時支' },
+  ];
+
+  for (const { value, name } of stems) {
+    if (!isValidStem(value)) {
+      console.warn(`神煞計算警告：無效的${name}「${value}」`);
+      return []; // 返回空結果，避免計算錯誤
+    }
+  }
+
+  for (const { value, name } of branches) {
+    if (!isValidBranch(value)) {
+      console.warn(`神煞計算警告：無效的${name}「${value}」`);
+      return []; // 返回空結果，避免計算錯誤
+    }
+  }
+
   const allBranches = [
     { branch: yearBranch, position: '年柱' },
     { branch: monthBranch, position: '月柱' },
@@ -658,693 +717,429 @@ export function calculateBaZiShenSha(
     { stem: hourPillar.heavenlyStem, position: '時柱' },
   ];
 
-  // 1. 天乙貴人（以日干查，看其他柱地支）
-  const tianyiTargets = TIANYI_GUIREN[dayStem];
-  if (tianyiTargets) {
+  // ========== 輔助函數 ==========
+
+  /**
+   * 查找地支匹配單一目標的柱位
+   */
+  const findBranchPositions = (target: string | undefined): string[] => {
+    if (!target) return [];
     const positions: string[] = [];
     allBranches.forEach(({ branch, position }) => {
-      if (tianyiTargets.includes(branch)) {
+      if (branch === target) {
         positions.push(position);
       }
     });
-    if (positions.length > 0) {
-      shenShaList.push({
-        name: '天乙貴人',
-        type: '吉',
-        description: '逢凶化吉、遇難呈祥，主貴人相助',
-        positions,
-      });
-    }
-  }
+    return positions;
+  };
 
-  // 2. 文昌貴人（以日干查）
-  const wenchangTarget = WENCHANG[dayStem];
-  if (wenchangTarget) {
+  /**
+   * 查找地支匹配多個目標的柱位（用於天乙貴人、太極貴人等）
+   */
+  const findBranchPositionsMultiple = (
+    targets: string[] | undefined
+  ): string[] => {
+    if (!targets) return [];
     const positions: string[] = [];
     allBranches.forEach(({ branch, position }) => {
-      if (branch === wenchangTarget) {
+      if (targets.includes(branch)) {
         positions.push(position);
       }
     });
-    if (positions.length > 0) {
-      shenShaList.push({
-        name: '文昌貴人',
-        type: '吉',
-        description: '主聰明智慧、學業有成、利於考試',
-        positions,
-      });
-    }
-  }
+    return positions;
+  };
 
-  // 3. 桃花（以日支或年支查）
-  const taohuaTarget1 = TAOHUA[dayBranch];
-  const taohuaTarget2 = TAOHUA[yearBranch];
-  const taohuaPositions: string[] = [];
-  allBranches.forEach(({ branch, position }) => {
-    if (branch === taohuaTarget1 || branch === taohuaTarget2) {
-      if (!taohuaPositions.includes(position)) {
-        taohuaPositions.push(position);
-      }
-    }
-  });
-  if (taohuaPositions.length > 0) {
-    shenShaList.push({
-      name: '桃花',
-      type: '中',
-      description: '主人緣佳、異性緣好，但須防桃色糾紛',
-      positions: taohuaPositions,
-    });
-  }
-
-  // 4. 驛馬（以日支或年支查）
-  const yimaTarget1 = YIMA[dayBranch];
-  const yimaTarget2 = YIMA[yearBranch];
-  const yimaPositions: string[] = [];
-  allBranches.forEach(({ branch, position }) => {
-    if (branch === yimaTarget1 || branch === yimaTarget2) {
-      if (!yimaPositions.includes(position)) {
-        yimaPositions.push(position);
-      }
-    }
-  });
-  if (yimaPositions.length > 0) {
-    shenShaList.push({
-      name: '驛馬',
-      type: '中',
-      description: '主奔波勞碌、適合外出發展、有遷移變動',
-      positions: yimaPositions,
-    });
-  }
-
-  // 5. 華蓋（以日支或年支查）
-  const huagaiTarget1 = HUAGAI[dayBranch];
-  const huagaiTarget2 = HUAGAI[yearBranch];
-  const huagaiPositions: string[] = [];
-  allBranches.forEach(({ branch, position }) => {
-    if (branch === huagaiTarget1 || branch === huagaiTarget2) {
-      if (!huagaiPositions.includes(position)) {
-        huagaiPositions.push(position);
-      }
-    }
-  });
-  if (huagaiPositions.length > 0) {
-    shenShaList.push({
-      name: '華蓋',
-      type: '中',
-      description: '主聰明孤傲、適合藝術宗教、喜獨處研究',
-      positions: huagaiPositions,
-    });
-  }
-
-  // 6. 將星（以日支或年支查）
-  const jiangxingTarget1 = JIANGXING[dayBranch];
-  const jiangxingTarget2 = JIANGXING[yearBranch];
-  const jiangxingPositions: string[] = [];
-  allBranches.forEach(({ branch, position }) => {
-    if (branch === jiangxingTarget1 || branch === jiangxingTarget2) {
-      if (!jiangxingPositions.includes(position)) {
-        jiangxingPositions.push(position);
-      }
-    }
-  });
-  if (jiangxingPositions.length > 0) {
-    shenShaList.push({
-      name: '將星',
-      type: '吉',
-      description: '主領導能力強、有權威、適合管理職位',
-      positions: jiangxingPositions,
-    });
-  }
-
-  // 7. 祿神（以日干查）
-  const lushenTarget = LUSHEN[dayStem];
-  if (lushenTarget) {
+  /**
+   * 查找地支匹配日支或年支目標的柱位（用於桃花、驛馬等）
+   */
+  const findBranchPositionsDual = (
+    target1: string | undefined,
+    target2: string | undefined
+  ): string[] => {
     const positions: string[] = [];
     allBranches.forEach(({ branch, position }) => {
-      if (branch === lushenTarget) {
-        positions.push(position);
+      if (branch === target1 || branch === target2) {
+        if (!positions.includes(position)) {
+          positions.push(position);
+        }
       }
     });
-    if (positions.length > 0) {
-      shenShaList.push({
-        name: '祿神',
-        type: '吉',
-        description: '主衣食無憂、財祿豐厚、福氣綿長',
-        positions,
-      });
-    }
-  }
+    return positions;
+  };
 
-  // 8. 羊刃（以日干查，陽干才有）
-  const yangrenTarget = YANGREN[dayStem];
-  if (yangrenTarget) {
-    const positions: string[] = [];
-    allBranches.forEach(({ branch, position }) => {
-      if (branch === yangrenTarget) {
-        positions.push(position);
-      }
-    });
+  /**
+   * 添加神煞到列表（如果有匹配的柱位）
+   */
+  const addShenSha = (
+    positions: string[],
+    name: string,
+    type: '吉' | '凶' | '中',
+    description: string
+  ): void => {
     if (positions.length > 0) {
-      shenShaList.push({
-        name: '羊刃',
-        type: '凶',
-        description: '主性格剛烈、易有血光之災、須防意外傷害',
-        positions,
-      });
+      shenShaList.push({ name, type, description, positions });
     }
-  }
+  };
 
-  // 9. 天德貴人（以月支查，看四柱天干）
-  const tiandeTarget = TIANDE[monthBranch];
-  if (tiandeTarget) {
+  /**
+   * 查找天干匹配目標的柱位
+   */
+  const findStemPositions = (target: string | undefined): string[] => {
+    if (!target) return [];
     const positions: string[] = [];
     allStems.forEach(({ stem, position }) => {
-      if (stem === tiandeTarget) {
+      if (stem === target) {
         positions.push(position);
       }
     });
-    // 也查地支（部分版本）
+    return positions;
+  };
+
+  /**
+   * 查找地支匹配目標的柱位（排除指定柱位）
+   */
+  const findBranchPositionsExclude = (
+    target: string | undefined,
+    excludePosition: string
+  ): string[] => {
+    if (!target) return [];
+    const positions: string[] = [];
     allBranches.forEach(({ branch, position }) => {
-      if (branch === tiandeTarget && !positions.includes(position)) {
+      if (branch === target && position !== excludePosition) {
         positions.push(position);
       }
     });
-    if (positions.length > 0) {
-      shenShaList.push({
-        name: '天德貴人',
-        type: '吉',
-        description: '主逢凶化吉、一生平安、有貴人扶持',
-        positions,
-      });
-    }
+    return positions;
+  };
+
+  // ========== 神煞計算 ==========
+
+  // 1. 天乙貴人（以日干查，看其他柱地支）
+  addShenSha(
+    findBranchPositionsMultiple(TIANYI_GUIREN[dayStem]),
+    '天乙貴人',
+    '吉',
+    '逢凶化吉、遇難呈祥，主貴人相助'
+  );
+
+  // 2. 文昌貴人（以日干查）
+  addShenSha(
+    findBranchPositions(WENCHANG[dayStem]),
+    '文昌貴人',
+    '吉',
+    '主聰明智慧、學業有成、利於考試'
+  );
+
+  // 3. 桃花（以日支或年支查）
+  addShenSha(
+    findBranchPositionsDual(TAOHUA[dayBranch], TAOHUA[yearBranch]),
+    '桃花',
+    '中',
+    '主人緣佳、異性緣好，但須防桃色糾紛'
+  );
+
+  // 4. 驛馬（以日支或年支查）
+  addShenSha(
+    findBranchPositionsDual(YIMA[dayBranch], YIMA[yearBranch]),
+    '驛馬',
+    '中',
+    '主奔波勞碌、適合外出發展、有遷移變動'
+  );
+
+  // 5. 華蓋（以日支或年支查）
+  addShenSha(
+    findBranchPositionsDual(HUAGAI[dayBranch], HUAGAI[yearBranch]),
+    '華蓋',
+    '中',
+    '主聰明孤傲、適合藝術宗教、喜獨處研究'
+  );
+
+  // 6. 將星（以日支或年支查）
+  addShenSha(
+    findBranchPositionsDual(JIANGXING[dayBranch], JIANGXING[yearBranch]),
+    '將星',
+    '吉',
+    '主領導能力強、有權威、適合管理職位'
+  );
+
+  // 7. 祿神（以日干查）
+  addShenSha(
+    findBranchPositions(LUSHEN[dayStem]),
+    '祿神',
+    '吉',
+    '主衣食無憂、財祿豐厚、福氣綿長'
+  );
+
+  // 8. 羊刃（以日干查，陽干才有）
+  addShenSha(
+    findBranchPositions(YANGREN[dayStem]),
+    '羊刃',
+    '凶',
+    '主性格剛烈、易有血光之災、須防意外傷害'
+  );
+
+  // 9. 天德貴人（以月支查，看四柱天干和地支）
+  const tiandeTarget = TIANDE[monthBranch];
+  if (tiandeTarget) {
+    const stemPos = findStemPositions(tiandeTarget);
+    const branchPos = findBranchPositions(tiandeTarget);
+    const combinedPos = [...new Set([...stemPos, ...branchPos])];
+    addShenSha(combinedPos, '天德貴人', '吉', '主逢凶化吉、一生平安、有貴人扶持');
   }
 
   // 10. 月德貴人（以月支查，看四柱天干）
-  const yuedeTarget = YUEDE[monthBranch];
-  if (yuedeTarget) {
-    const positions: string[] = [];
-    allStems.forEach(({ stem, position }) => {
-      if (stem === yuedeTarget) {
-        positions.push(position);
-      }
-    });
-    if (positions.length > 0) {
-      shenShaList.push({
-        name: '月德貴人',
-        type: '吉',
-        description: '主品德高尚、處事平順、有福德庇佑',
-        positions,
-      });
-    }
-  }
+  addShenSha(
+    findStemPositions(YUEDE[monthBranch]),
+    '月德貴人',
+    '吉',
+    '主品德高尚、處事平順、有福德庇佑'
+  );
 
   // 11. 金輿（以日干查）
-  const jinyuTarget = JINYU[dayStem];
-  if (jinyuTarget) {
-    const positions: string[] = [];
-    allBranches.forEach(({ branch, position }) => {
-      if (branch === jinyuTarget) {
-        positions.push(position);
-      }
-    });
-    if (positions.length > 0) {
-      shenShaList.push({
-        name: '金輿',
-        type: '吉',
-        description: '主出行平安、有車馬之福、利於交通',
-        positions,
-      });
-    }
-  }
+  addShenSha(
+    findBranchPositions(JINYU[dayStem]),
+    '金輿',
+    '吉',
+    '主出行平安、有車馬之福、利於交通'
+  );
 
   // 12. 劫煞（以日支或年支查）
-  const jieshaTarget1 = JIESHA[dayBranch];
-  const jieshaTarget2 = JIESHA[yearBranch];
-  const jieshaPositions: string[] = [];
-  allBranches.forEach(({ branch, position }) => {
-    if (branch === jieshaTarget1 || branch === jieshaTarget2) {
-      if (!jieshaPositions.includes(position)) {
-        jieshaPositions.push(position);
-      }
-    }
-  });
-  if (jieshaPositions.length > 0) {
-    shenShaList.push({
-      name: '劫煞',
-      type: '凶',
-      description: '主易有劫難、須防小人暗害、謹慎理財',
-      positions: jieshaPositions,
-    });
-  }
+  addShenSha(
+    findBranchPositionsDual(JIESHA[dayBranch], JIESHA[yearBranch]),
+    '劫煞',
+    '凶',
+    '主易有劫難、須防小人暗害、謹慎理財'
+  );
 
   // 13. 亡神（以日支或年支查）
-  const wangshenTarget1 = WANGSHEN[dayBranch];
-  const wangshenTarget2 = WANGSHEN[yearBranch];
-  const wangshenPositions: string[] = [];
-  allBranches.forEach(({ branch, position }) => {
-    if (branch === wangshenTarget1 || branch === wangshenTarget2) {
-      if (!wangshenPositions.includes(position)) {
-        wangshenPositions.push(position);
-      }
-    }
-  });
-  if (wangshenPositions.length > 0) {
-    shenShaList.push({
-      name: '亡神',
-      type: '凶',
-      description: '主心神不寧、易有是非口舌、須防暗耗',
-      positions: wangshenPositions,
-    });
-  }
+  addShenSha(
+    findBranchPositionsDual(WANGSHEN[dayBranch], WANGSHEN[yearBranch]),
+    '亡神',
+    '凶',
+    '主心神不寧、易有是非口舌、須防暗耗'
+  );
 
-  // 14. 孤辰（以年支查）
-  const guchenTarget = GUCHEN[yearBranch];
-  if (guchenTarget) {
-    const positions: string[] = [];
-    allBranches.forEach(({ branch, position }) => {
-      if (branch === guchenTarget && position !== '年柱') {
-        positions.push(position);
-      }
-    });
-    if (positions.length > 0) {
-      shenShaList.push({
-        name: '孤辰',
-        type: '凶',
-        description: '主孤獨寂寞、男命克妻、宜晚婚',
-        positions,
-      });
-    }
-  }
+  // 14. 孤辰（以年支查，排除年柱）
+  addShenSha(
+    findBranchPositionsExclude(GUCHEN[yearBranch], '年柱'),
+    '孤辰',
+    '凶',
+    '主孤獨寂寞、男命克妻、宜晚婚'
+  );
 
-  // 15. 寡宿（以年支查）
-  const guasuTarget = GUASU[yearBranch];
-  if (guasuTarget) {
-    const positions: string[] = [];
-    allBranches.forEach(({ branch, position }) => {
-      if (branch === guasuTarget && position !== '年柱') {
-        positions.push(position);
-      }
-    });
-    if (positions.length > 0) {
-      shenShaList.push({
-        name: '寡宿',
-        type: '凶',
-        description: '主孤獨寂寞、女命克夫、宜晚婚',
-        positions,
-      });
-    }
-  }
+  // 15. 寡宿（以年支查，排除年柱）
+  addShenSha(
+    findBranchPositionsExclude(GUASU[yearBranch], '年柱'),
+    '寡宿',
+    '凶',
+    '主孤獨寂寞、女命克夫、宜晚婚'
+  );
 
   // 16. 天廚貴人（以日干查）
-  const tianchuTarget = TIANCHU[dayStem];
-  if (tianchuTarget) {
-    const positions: string[] = [];
-    allBranches.forEach(({ branch, position }) => {
-      if (branch === tianchuTarget) {
-        positions.push(position);
-      }
-    });
-    if (positions.length > 0) {
-      shenShaList.push({
-        name: '天廚貴人',
-        type: '吉',
-        description: '主食祿豐厚、衣食無缺、生活富足',
-        positions,
-      });
-    }
-  }
+  addShenSha(
+    findBranchPositions(TIANCHU[dayStem]),
+    '天廚貴人',
+    '吉',
+    '主食祿豐厚、衣食無缺、生活富足'
+  );
 
   // 17. 福星貴人（以日干查）
-  const fuxingTarget = FUXING[dayStem];
-  if (fuxingTarget) {
-    const positions: string[] = [];
-    allBranches.forEach(({ branch, position }) => {
-      if (branch === fuxingTarget) {
-        positions.push(position);
-      }
-    });
-    if (positions.length > 0) {
-      shenShaList.push({
-        name: '福星貴人',
-        type: '吉',
-        description: '主福氣臨門、一生平安、遇事有救',
-        positions,
-      });
-    }
-  }
+  addShenSha(
+    findBranchPositions(FUXING[dayStem]),
+    '福星貴人',
+    '吉',
+    '主福氣臨門、一生平安、遇事有救'
+  );
 
   // 18. 國印貴人（以日干查）
-  const guoyinTarget = GUOYIN[dayStem];
-  if (guoyinTarget) {
-    const positions: string[] = [];
-    allBranches.forEach(({ branch, position }) => {
-      if (branch === guoyinTarget) {
-        positions.push(position);
-      }
-    });
-    if (positions.length > 0) {
-      shenShaList.push({
-        name: '國印貴人',
-        type: '吉',
-        description: '主掌印信權柄、適合公職、有官運',
-        positions,
-      });
-    }
-  }
+  addShenSha(
+    findBranchPositions(GUOYIN[dayStem]),
+    '國印貴人',
+    '吉',
+    '主掌印信權柄、適合公職、有官運'
+  );
 
   // 19. 學堂（以日干查）
-  const xuetangTarget = XUETANG[dayStem];
-  if (xuetangTarget) {
-    const positions: string[] = [];
-    allBranches.forEach(({ branch, position }) => {
-      if (branch === xuetangTarget) {
-        positions.push(position);
-      }
-    });
-    if (positions.length > 0) {
-      shenShaList.push({
-        name: '學堂',
-        type: '吉',
-        description: '主聰明好學、學業有成、文采出眾',
-        positions,
-      });
-    }
-  }
+  addShenSha(
+    findBranchPositions(XUETANG[dayStem]),
+    '學堂',
+    '吉',
+    '主聰明好學、學業有成、文采出眾'
+  );
 
   // 20. 詞館（以日干查）
-  const ciguanTarget = CIGUAN[dayStem];
-  if (ciguanTarget) {
-    const positions: string[] = [];
-    allBranches.forEach(({ branch, position }) => {
-      if (branch === ciguanTarget) {
-        positions.push(position);
-      }
-    });
-    if (positions.length > 0) {
-      shenShaList.push({
-        name: '詞館',
-        type: '吉',
-        description: '主文采斐然、能言善辯、利於文職',
-        positions,
-      });
-    }
-  }
+  addShenSha(
+    findBranchPositions(CIGUAN[dayStem]),
+    '詞館',
+    '吉',
+    '主文采斐然、能言善辯、利於文職'
+  );
 
   // 21. 魁罡（以日柱干支組合查）
   const dayPillarStr = dayStem + dayBranch;
   if (KUIGANG.includes(dayPillarStr)) {
-    shenShaList.push({
-      name: '魁罡',
-      type: '中',
-      description: '主性格剛毅、有膽識魄力、但須防剛愎自用',
-      positions: ['日柱'],
-    });
+    addShenSha(['日柱'], '魁罡', '中', '主性格剛毅、有膽識魄力、但須防剛愎自用');
   }
 
-  // 22. 天羅地網
-  const tianluoPositions: string[] = [];
-  const diwangPositions: string[] = [];
-  allBranches.forEach(({ branch, position }) => {
-    if (branch === TIANLUODIWANG.天羅) {
-      tianluoPositions.push(position);
-    }
-    if (branch === TIANLUODIWANG.地網) {
-      diwangPositions.push(position);
-    }
-  });
-  if (tianluoPositions.length > 0 && diwangPositions.length > 0) {
-    shenShaList.push({
-      name: '天羅地網',
-      type: '凶',
-      description: '主易遇困阻、諸事不順、須防官非訴訟',
-      positions: [...new Set([...tianluoPositions, ...diwangPositions])],
-    });
+  // 22. 天羅地網（辰戌同時出現）
+  const tianluoPos = findBranchPositions(TIANLUODIWANG.天羅);
+  const diwangPos = findBranchPositions(TIANLUODIWANG.地網);
+  if (tianluoPos.length > 0 && diwangPos.length > 0) {
+    addShenSha(
+      [...new Set([...tianluoPos, ...diwangPos])],
+      '天羅地網',
+      '凶',
+      '主易遇困阻、諸事不順、須防官非訴訟'
+    );
   }
 
   // 23. 災煞（以日支或年支查）
-  const zaishaTarget1 = ZAISHA[dayBranch];
-  const zaishaTarget2 = ZAISHA[yearBranch];
-  const zaishaPositions: string[] = [];
-  allBranches.forEach(({ branch, position }) => {
-    if (branch === zaishaTarget1 || branch === zaishaTarget2) {
-      if (!zaishaPositions.includes(position)) {
-        zaishaPositions.push(position);
-      }
-    }
-  });
-  if (zaishaPositions.length > 0) {
-    shenShaList.push({
-      name: '災煞',
-      type: '凶',
-      description: '主災禍臨身、須防水火之災、謹慎行事',
-      positions: zaishaPositions,
-    });
-  }
+  addShenSha(
+    findBranchPositionsDual(ZAISHA[dayBranch], ZAISHA[yearBranch]),
+    '災煞',
+    '凶',
+    '主災禍臨身、須防水火之災、謹慎行事'
+  );
 
   // 24. 天煞（以日支或年支查）
-  const tianshaTarget1 = TIANSHA[dayBranch];
-  const tianshaTarget2 = TIANSHA[yearBranch];
-  const tianshaPositions: string[] = [];
-  allBranches.forEach(({ branch, position }) => {
-    if (branch === tianshaTarget1 || branch === tianshaTarget2) {
-      if (!tianshaPositions.includes(position)) {
-        tianshaPositions.push(position);
-      }
-    }
-  });
-  if (tianshaPositions.length > 0) {
-    shenShaList.push({
-      name: '天煞',
-      type: '凶',
-      description: '主意外災禍、須防飛來橫禍、宜謹慎',
-      positions: tianshaPositions,
-    });
-  }
+  addShenSha(
+    findBranchPositionsDual(TIANSHA[dayBranch], TIANSHA[yearBranch]),
+    '天煞',
+    '凶',
+    '主意外災禍、須防飛來橫禍、宜謹慎'
+  );
 
   // 25. 地煞（以日支或年支查）
-  const dishaTarget1 = DISHA[dayBranch];
-  const dishaTarget2 = DISHA[yearBranch];
-  const dishaPositions: string[] = [];
-  allBranches.forEach(({ branch, position }) => {
-    if (branch === dishaTarget1 || branch === dishaTarget2) {
-      if (!dishaPositions.includes(position)) {
-        dishaPositions.push(position);
-      }
-    }
-  });
-  if (dishaPositions.length > 0) {
-    shenShaList.push({
-      name: '地煞',
-      type: '凶',
-      description: '主地面災害、須防跌傷摔傷、出行謹慎',
-      positions: dishaPositions,
-    });
-  }
+  addShenSha(
+    findBranchPositionsDual(DISHA[dayBranch], DISHA[yearBranch]),
+    '地煞',
+    '凶',
+    '主地面災害、須防跌傷摔傷、出行謹慎'
+  );
 
   // 26. 紅艷煞（以日干查）
-  const hongyanTarget = HONGYAN[dayStem];
-  if (hongyanTarget) {
-    const positions: string[] = [];
-    allBranches.forEach(({ branch, position }) => {
-      if (branch === hongyanTarget) {
-        positions.push(position);
-      }
-    });
-    if (positions.length > 0) {
-      shenShaList.push({
-        name: '紅艷煞',
-        type: '中',
-        description: '主風流多情、異性緣佳、但須防感情糾葛',
-        positions,
-      });
-    }
-  }
+  addShenSha(
+    findBranchPositions(HONGYAN[dayStem]),
+    '紅艷煞',
+    '中',
+    '主風流多情、異性緣佳、但須防感情糾葛'
+  );
 
   // 27. 流霞煞（以日干查）
-  const liuxiaTarget = LIUXIA[dayStem];
-  if (liuxiaTarget) {
-    const positions: string[] = [];
-    allBranches.forEach(({ branch, position }) => {
-      if (branch === liuxiaTarget) {
-        positions.push(position);
-      }
-    });
-    if (positions.length > 0) {
-      shenShaList.push({
-        name: '流霞煞',
-        type: '凶',
-        description: '主血光之災、女命須防難產、男命防意外',
-        positions,
-      });
-    }
-  }
+  addShenSha(
+    findBranchPositions(LIUXIA[dayStem]),
+    '流霞煞',
+    '凶',
+    '主血光之災、女命須防難產、男命防意外'
+  );
 
   // 28. 血刃（以日干查）
-  const xuerenTarget = XUEREN[dayStem];
-  if (xuerenTarget) {
-    const positions: string[] = [];
-    allBranches.forEach(({ branch, position }) => {
-      if (branch === xuerenTarget) {
-        positions.push(position);
-      }
-    });
-    if (positions.length > 0) {
-      shenShaList.push({
-        name: '血刃',
-        type: '凶',
-        description: '主血光之災、須防刀傷手術、謹慎行事',
-        positions,
-      });
-    }
-  }
+  addShenSha(
+    findBranchPositions(XUEREN[dayStem]),
+    '血刃',
+    '凶',
+    '主血光之災、須防刀傷手術、謹慎行事'
+  );
 
   // 29. 天醫（以月支查）
-  const tianyiDoctorTarget = TIANYI_DOCTOR[monthBranch];
-  if (tianyiDoctorTarget) {
-    const positions: string[] = [];
-    allBranches.forEach(({ branch, position }) => {
-      if (branch === tianyiDoctorTarget) {
-        positions.push(position);
-      }
-    });
-    if (positions.length > 0) {
-      shenShaList.push({
-        name: '天醫',
-        type: '吉',
-        description: '主適合醫療行業、身體康健、逢病可癒',
-        positions,
-      });
-    }
-  }
+  addShenSha(
+    findBranchPositions(TIANYI_DOCTOR[monthBranch]),
+    '天醫',
+    '吉',
+    '主適合醫療行業、身體康健、逢病可癒'
+  );
 
   // 30. 太極貴人（以日干查）
-  const taijiTargets = TAIJI[dayStem];
-  if (taijiTargets) {
-    const positions: string[] = [];
-    allBranches.forEach(({ branch, position }) => {
-      if (taijiTargets.includes(branch)) {
-        positions.push(position);
-      }
-    });
-    if (positions.length > 0) {
-      shenShaList.push({
-        name: '太極貴人',
-        type: '吉',
-        description: '主近貴得福、智慧超群、適合玄學研究',
-        positions,
-      });
-    }
-  }
+  addShenSha(
+    findBranchPositionsMultiple(TAIJI[dayStem]),
+    '太極貴人',
+    '吉',
+    '主近貴得福、智慧超群、適合玄學研究'
+  );
 
   // 31. 三奇貴人
   const yearStem = yearPillar.heavenlyStem;
   const monthStem = monthPillar.heavenlyStem;
   const hourStem = hourPillar.heavenlyStem;
   const allStemValues = [yearStem, monthStem, dayStem, hourStem];
+  const pillarNames = ['年柱', '月柱', '日柱', '時柱'];
+
+  // 檢查三奇的輔助函數
+  const findSanqiPositions = (
+    order: string[]
+  ): { found: boolean; positions: string[] } => {
+    // 防禦性檢查：確保陣列長度一致且足夠
+    if (
+      allStemValues.length !== pillarNames.length ||
+      allStemValues.length < 3
+    ) {
+      console.warn('神煞計算警告：三奇檢查時陣列長度不一致或不足');
+      return { found: false, positions: [] };
+    }
+
+    for (let i = 0; i < allStemValues.length - 2; i++) {
+      if (
+        allStemValues[i] === order[0] &&
+        allStemValues[i + 1] === order[1] &&
+        allStemValues[i + 2] === order[2]
+      ) {
+        return {
+          found: true,
+          positions: [pillarNames[i], pillarNames[i + 1], pillarNames[i + 2]],
+        };
+      }
+    }
+    return { found: false, positions: [] };
+  };
 
   // 檢查天上三奇（甲戊庚順序出現）
-  const tianSanqiOrder = SANQI.天上三奇;
-  let tianSanqiFound = false;
-  for (let i = 0; i < allStemValues.length - 2; i++) {
-    if (
-      allStemValues[i] === tianSanqiOrder[0] &&
-      allStemValues[i + 1] === tianSanqiOrder[1] &&
-      allStemValues[i + 2] === tianSanqiOrder[2]
-    ) {
-      tianSanqiFound = true;
-      break;
-    }
-  }
-  if (tianSanqiFound) {
+  const tianSanqiResult = findSanqiPositions(SANQI.天上三奇);
+  if (tianSanqiResult.found) {
     shenShaList.push({
       name: '天上三奇',
       type: '吉',
       description: '主天賦異稟、聰明絕頂、適合研究學問',
-      positions: ['年柱', '月柱', '日柱'],
+      positions: tianSanqiResult.positions,
     });
   }
 
   // 檢查地上三奇（乙丙丁順序出現）
-  const diSanqiOrder = SANQI.地上三奇;
-  let diSanqiFound = false;
-  for (let i = 0; i < allStemValues.length - 2; i++) {
-    if (
-      allStemValues[i] === diSanqiOrder[0] &&
-      allStemValues[i + 1] === diSanqiOrder[1] &&
-      allStemValues[i + 2] === diSanqiOrder[2]
-    ) {
-      diSanqiFound = true;
-      break;
-    }
-  }
-  if (diSanqiFound) {
+  const diSanqiResult = findSanqiPositions(SANQI.地上三奇);
+  if (diSanqiResult.found) {
     shenShaList.push({
       name: '地上三奇',
       type: '吉',
       description: '主得地利之便、事業順遂、財運亨通',
-      positions: ['年柱', '月柱', '日柱'],
+      positions: diSanqiResult.positions,
     });
   }
 
   // 檢查人中三奇（壬癸辛順序出現）
-  const renSanqiOrder = SANQI.人中三奇;
-  let renSanqiFound = false;
-  for (let i = 0; i < allStemValues.length - 2; i++) {
-    if (
-      allStemValues[i] === renSanqiOrder[0] &&
-      allStemValues[i + 1] === renSanqiOrder[1] &&
-      allStemValues[i + 2] === renSanqiOrder[2]
-    ) {
-      renSanqiFound = true;
-      break;
-    }
-  }
-  if (renSanqiFound) {
+  const renSanqiResult = findSanqiPositions(SANQI.人中三奇);
+  if (renSanqiResult.found) {
     shenShaList.push({
       name: '人中三奇',
       type: '吉',
-      description: '主人緣廣闘、貴人相助、處世圓融',
-      positions: ['年柱', '月柱', '日柱'],
+      description: '主人緣廣闊、貴人相助、處世圓融',
+      positions: renSanqiResult.positions,
     });
   }
 
   // 32. 天喜（以年支查）
-  const tianxiTarget = TIANXI[yearBranch];
-  if (tianxiTarget) {
-    const positions: string[] = [];
-    allBranches.forEach(({ branch, position }) => {
-      if (branch === tianxiTarget) {
-        positions.push(position);
-      }
-    });
-    if (positions.length > 0) {
-      shenShaList.push({
-        name: '天喜',
-        type: '吉',
-        description: '主喜事臨門、婚姻美滿、添丁進財',
-        positions,
-      });
-    }
-  }
+  addShenSha(
+    findBranchPositions(TIANXI[yearBranch]),
+    '天喜',
+    '吉',
+    '主喜事臨門、婚姻美滿、添丁進財'
+  );
 
   // 33. 紅鸞（以年支查）
-  const hongluanTarget = HONGLUAN[yearBranch];
-  if (hongluanTarget) {
-    const positions: string[] = [];
-    allBranches.forEach(({ branch, position }) => {
-      if (branch === hongluanTarget) {
-        positions.push(position);
-      }
-    });
-    if (positions.length > 0) {
-      shenShaList.push({
-        name: '紅鸞',
-        type: '吉',
-        description: '主姻緣和合、喜事連連、利於婚嫁',
-        positions,
-      });
-    }
-  }
+  addShenSha(
+    findBranchPositions(HONGLUAN[yearBranch]),
+    '紅鸞',
+    '吉',
+    '主姻緣和合、喜事連連、利於婚嫁'
+  );
 
   // 34. 天赦（特定日柱與月支組合）
   for (const rule of TIANSHE) {
@@ -1353,34 +1148,19 @@ export function calculateBaZiShenSha(
       dayStem === rule.dayStem &&
       dayBranch === rule.dayBranch
     ) {
-      shenShaList.push({
-        name: '天赦',
-        type: '吉',
-        description: '主逢凶化吉、罪過可赦、貴人相助',
-        positions: ['日柱'],
-      });
+      addShenSha(['日柱'], '天赦', '吉', '主逢凶化吉、罪過可赦、貴人相助');
       break;
     }
   }
 
   // 35. 陰陽差錯（特定日柱組合）
   if (YINYANG_CHACUO.includes(dayPillarStr)) {
-    shenShaList.push({
-      name: '陰陽差錯',
-      type: '凶',
-      description: '主婚姻不順、夫妻易有隔閡、感情多波折',
-      positions: ['日柱'],
-    });
+    addShenSha(['日柱'], '陰陽差錯', '凶', '主婚姻不順、夫妻易有隔閡、感情多波折');
   }
 
   // 36. 十惡大敗（特定日柱組合）
   if (SHIE_DABAI.includes(dayPillarStr)) {
-    shenShaList.push({
-      name: '十惡大敗',
-      type: '凶',
-      description: '主錢財難聚、事業多阻、須防破敗',
-      positions: ['日柱'],
-    });
+    addShenSha(['日柱'], '十惡大敗', '凶', '主錢財難聚、事業多阻、須防破敗');
   }
 
   // 按吉凶排序：吉神在前，中性次之，凶神在後
