@@ -7,7 +7,12 @@ import {
 import type { City } from './cities';
 import { getDefaultCity } from './cities';
 import { convertToTraditional } from './chineseConverter';
-import { calculateFiveElements, type FiveElementsCount } from './fiveElements';
+import {
+  calculateFiveElements,
+  calculatePillarTenGods,
+  type FiveElementsCount,
+  type PillarTenGods,
+} from './fiveElements';
 
 export interface BirthInfo {
   gender: 'male' | 'female';
@@ -34,6 +39,7 @@ export interface BaZiResult {
   hourPillar: Pillar;
   gender: string;
   fiveElements: FiveElementsCount; // 五行統計
+  tenGods: PillarTenGods; // 四柱十神
   // 真太陽時校正資訊
   correctionInfo?: {
     cityName: string;
@@ -120,6 +126,14 @@ export function calculateBaZi(birthInfo: BirthInfo): BaZiResult {
     hourPillar,
   ]);
 
+  // 計算四柱十神
+  const tenGods = calculatePillarTenGods([
+    yearPillar,
+    monthPillar,
+    dayPillar,
+    hourPillar,
+  ]);
+
   return {
     solarDate: solarTime.getSolarDay().toString(),
     lunarDate: convertToTraditional(lunarDay.toString()),
@@ -129,6 +143,7 @@ export function calculateBaZi(birthInfo: BirthInfo): BaZiResult {
     hourPillar,
     gender: gender === 'male' ? '男' : '女',
     fiveElements,
+    tenGods,
     correctionInfo: {
       cityName: selectedCity.name,
       isDST: trueSolarTimeResult.isDST,

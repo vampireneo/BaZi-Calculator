@@ -280,6 +280,121 @@ export interface FavorableElements {
 }
 
 /**
+ * 十神類型
+ */
+export type TenGod =
+  | '比肩'  // 同五行同陰陽
+  | '劫財'  // 同五行異陰陽
+  | '食神'  // 我生，同陰陽
+  | '傷官'  // 我生，異陰陽
+  | '偏財'  // 我克，同陰陽
+  | '正財'  // 我克，異陰陽
+  | '七殺'  // 克我，同陰陽
+  | '正官'  // 克我，異陰陽
+  | '偏印'  // 生我，同陰陽
+  | '正印'; // 生我，異陰陽
+
+/**
+ * 四柱十神結果
+ */
+export interface PillarTenGods {
+  year: TenGod | null;   // 年柱天干的十神
+  month: TenGod | null;  // 月柱天干的十神
+  day: null;             // 日柱天干為日主，無十神
+  hour: TenGod | null;   // 時柱天干的十神
+}
+
+/**
+ * 天干陰陽屬性
+ * 陽：甲、丙、戊、庚、壬
+ * 陰：乙、丁、己、辛、癸
+ */
+const HEAVENLY_STEM_POLARITY: Record<string, 'yang' | 'yin'> = {
+  甲: 'yang',
+  乙: 'yin',
+  丙: 'yang',
+  丁: 'yin',
+  戊: 'yang',
+  己: 'yin',
+  庚: 'yang',
+  辛: 'yin',
+  壬: 'yang',
+  癸: 'yin',
+};
+
+/**
+ * 判斷兩個天干的陰陽是否相同
+ * @param stem1 天干1
+ * @param stem2 天干2
+ * @returns 是否同陰陽
+ */
+function isSamePolarity(stem1: string, stem2: string): boolean {
+  return HEAVENLY_STEM_POLARITY[stem1] === HEAVENLY_STEM_POLARITY[stem2];
+}
+
+/**
+ * 計算天干相對於日主的十神
+ * @param stem 要判斷的天干
+ * @param dayMasterStem 日主天干
+ * @returns 十神類型
+ */
+export function calculateTenGod(stem: string, dayMasterStem: string): TenGod | null {
+  const stemElement = getHeavenlyStemElement(stem);
+  const dayMasterElement = getHeavenlyStemElement(dayMasterStem);
+
+  if (!stemElement || !dayMasterElement) {
+    return null;
+  }
+
+  const samePolarity = isSamePolarity(stem, dayMasterStem);
+
+  // 同五行：比肩、劫財
+  if (stemElement === dayMasterElement) {
+    return samePolarity ? '比肩' : '劫財';
+  }
+
+  // 我生：食神、傷官
+  if (ELEMENT_GENERATES[dayMasterElement] === stemElement) {
+    return samePolarity ? '食神' : '傷官';
+  }
+
+  // 我克：偏財、正財
+  if (ELEMENT_CONTROLS[dayMasterElement] === stemElement) {
+    return samePolarity ? '偏財' : '正財';
+  }
+
+  // 克我：七殺、正官
+  if (ELEMENT_CONTROLLED_BY[dayMasterElement] === stemElement) {
+    return samePolarity ? '七殺' : '正官';
+  }
+
+  // 生我：偏印、正印
+  if (ELEMENT_GENERATED_BY[dayMasterElement] === stemElement) {
+    return samePolarity ? '偏印' : '正印';
+  }
+
+  return null;
+}
+
+/**
+ * 計算四柱天干的十神
+ * @param pillars 四柱數組 [年柱, 月柱, 日柱, 時柱]
+ * @returns 四柱十神結果
+ */
+export function calculatePillarTenGods(
+  pillars: Array<{ heavenlyStem: string }>
+): PillarTenGods {
+  const dayMasterStem = pillars[2].heavenlyStem; // 日柱天干為日主
+
+  return {
+    year: calculateTenGod(pillars[0].heavenlyStem, dayMasterStem),
+    month: calculateTenGod(pillars[1].heavenlyStem, dayMasterStem),
+    day: null, // 日主本身無十神
+    hour: calculateTenGod(pillars[3].heavenlyStem, dayMasterStem),
+  };
+}
+
+/**
  * 計算喜神和忌神
  * 日主強：喜洩耗（我生、克我、我克），忌生扶（生我、比我）
  * 日主弱：喜生扶（生我、比我），忌洩耗（我生、克我、我克）
