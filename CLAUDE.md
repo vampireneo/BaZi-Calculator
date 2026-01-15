@@ -4,7 +4,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-BaZi Calculator (八字排盤) is a Chinese astrology web application that calculates the Four Pillars of Destiny based on birth date/time. It uses traditional Chinese calendar calculations with true solar time corrections, and provides Five Elements (五行) analysis including Day Master strength and favorable/unfavorable elements.
+BaZi Calculator (八字排盤) is a comprehensive Chinese astrology web application that calculates the Four Pillars of Destiny based on birth date/time and location. It uses traditional Chinese calendar calculations with true solar time corrections (longitude + DST), and provides complete analysis including:
+
+- **Four Pillars (四柱)**: Year, Month, Day, Hour pillars with Heavenly Stems and Earthly Branches
+- **Ten Gods (十神)**: Both primary stars (天干) and secondary stars (藏干/hidden stems) relationships
+- **Five Elements (五行)**: Complete distribution analysis with strength indicators
+- **Day Master (日主)**: Strength calculation and analysis (strong/weak determination)
+- **Favorable Elements (喜神/忌神)**: Automatic calculation based on Day Master strength
+- **True Solar Time (真太陽時)**: Precise time correction based on longitude and DST
 
 ## Commands
 
@@ -33,13 +40,17 @@ npx vitest run src/utils/baziHelper.test.ts
 3. **BaZi Calculation** (`baziHelper.ts`) → uses `tyme4ts` library to compute:
    - Four Pillars (Year, Month, Day, Hour)
    - Hidden Stems for each Earthly Branch
+   - Ten Gods (十神) for Heavenly Stems and Hidden Stems
    - Lunar calendar date
    - Five Elements distribution
-4. **Five Elements Analysis** (`fiveElements.ts`) → calculates:
+4. **Ten Gods Calculation** (`fiveElements.ts`) → calculates:
+   - Ten Gods (十神) relationships based on Five Elements interactions
+   - Both primary stems (天干) and hidden stems (藏干) Ten Gods
+5. **Five Elements Analysis** (`fiveElements.ts`) → calculates:
    - Day Master (日主) from Day Pillar's Heavenly Stem
    - Day Master Strength (日主強弱) based on supporting vs draining elements
    - Favorable Elements (喜神) and Unfavorable Elements (忌神)
-5. **Result Display** (`BaZiResult.tsx`) → shows pillars, Day Master analysis, and Five Elements
+6. **Result Display** (`BaZiResult.tsx`) → shows pillars, Ten Gods, Day Master analysis, and Five Elements
 
 ### Key Dependencies
 
@@ -50,10 +61,13 @@ npx vitest run src/utils/baziHelper.test.ts
 ### Data Structures
 
 - `BirthInfo`: Input data (gender, date, time, optional city)
-- `Pillar`: Heavenly Stem + Earthly Branch + Hidden Stems
-- `BaZiResult`: Complete calculation output including solar/lunar dates, pillars, five elements count, and correction info
+- `Pillar`: Heavenly Stem + Earthly Branch + Hidden Stems + Hidden Stems with Ten Gods
+- `HiddenStemWithTenGod`: Hidden stem paired with its Ten God relationship
+- `BaZiResult`: Complete calculation output including solar/lunar dates, pillars, ten gods, five elements count, and correction info
 - `City`: Location data with longitude and IANA timezone for solar time calculation
 - `FiveElementsCount`: Count of each Five Element (金木水火土) in the chart
+- `TenGod`: Ten Gods types (比肩, 劫財, 食神, 傷官, 偏財, 正財, 七殺, 正官, 偏印, 正印)
+- `PillarTenGods`: Ten Gods for each pillar's heavenly stem (year, month, day=null, hour)
 - `DayMasterInfo`: Day Master stem, element, and display name (e.g., "己土")
 - `DayMasterStrength`: Day Master strength analysis (same-type vs different-type count)
 - `FavorableElements`: Favorable (喜神) and unfavorable (忌神) elements based on Day Master strength
@@ -75,6 +89,35 @@ npx vitest run src/utils/baziHelper.test.ts
 - 水 (Water): Blue
 - 火 (Fire): Red
 - 土 (Earth): Amber
+
+### Ten Gods Calculation Rules
+
+**Ten Gods (十神)** represent the relationships between stems based on Five Elements interactions and yin/yang polarity:
+
+**Same Element**:
+- Same polarity → **比肩** (Siblings/Equals)
+- Different polarity → **劫財** (Robbery of Wealth)
+
+**Day Master Generates (我生)**:
+- Same polarity → **食神** (Eating God)
+- Different polarity → **傷官** (Hurting Officer)
+
+**Day Master Controls (我克)**:
+- Same polarity → **偏財** (Partial Wealth)
+- Different polarity → **正財** (Direct Wealth)
+
+**Controls Day Master (克我)**:
+- Same polarity → **七殺** (Seven Killings)
+- Different polarity → **正官** (Direct Officer)
+
+**Generates Day Master (生我)**:
+- Same polarity → **偏印** (Partial Seal)
+- Different polarity → **正印** (Direct Seal)
+
+**Ten Gods Display**:
+- Primary Stars (主星): Ten Gods for heavenly stems in year, month, and hour pillars
+- Secondary Stars (副星): Ten Gods for hidden stems (藏干) in all earthly branches
+- Day pillar has no Ten God as it represents the Day Master (日主) itself
 
 ### Important Calculation Rules
 
