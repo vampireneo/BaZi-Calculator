@@ -1050,4 +1050,319 @@ describe('八字神煞計算測試', () => {
       expect(sanqi?.positions).toEqual(['年柱', '月柱', '日柱']);
     });
   });
+
+  describe('月德合', () => {
+    it('月支寅見辛干應找到月德合', () => {
+      const pillars = createPillars(
+        { stem: '辛', branch: '丑' }, // 年干辛
+        { stem: '甲', branch: '寅' }, // 月支寅（月德合見辛）
+        { stem: '甲', branch: '辰' },
+        { stem: '庚', branch: '午' }
+      );
+      const result = calculateBaZiShenSha(
+        pillars.year,
+        pillars.month,
+        pillars.day,
+        pillars.hour
+      );
+      const yuedehe = findShenSha(result, '月德合');
+      expect(yuedehe).toBeDefined();
+      expect(yuedehe?.type).toBe('吉');
+    });
+  });
+
+  describe('天德合', () => {
+    it('月支寅見壬干應找到天德合', () => {
+      const pillars = createPillars(
+        { stem: '壬', branch: '丑' }, // 年干壬
+        { stem: '甲', branch: '寅' }, // 月支寅（天德丁合壬）
+        { stem: '甲', branch: '辰' },
+        { stem: '庚', branch: '午' }
+      );
+      const result = calculateBaZiShenSha(
+        pillars.year,
+        pillars.month,
+        pillars.day,
+        pillars.hour
+      );
+      const tiandehe = findShenSha(result, '天德合');
+      expect(tiandehe).toBeDefined();
+      expect(tiandehe?.type).toBe('吉');
+    });
+  });
+
+  describe('六秀日', () => {
+    it('丙午日柱應找到六秀日', () => {
+      const pillars = createPillars(
+        { stem: '甲', branch: '子' },
+        { stem: '丁', branch: '卯' },
+        { stem: '丙', branch: '午' }, // 丙午日柱
+        { stem: '庚', branch: '申' }
+      );
+      const result = calculateBaZiShenSha(
+        pillars.year,
+        pillars.month,
+        pillars.day,
+        pillars.hour
+      );
+      const liuxiu = findShenSha(result, '六秀日');
+      expect(liuxiu).toBeDefined();
+      expect(liuxiu?.type).toBe('吉');
+    });
+
+    it('癸酉日柱應找到六秀日', () => {
+      const pillars = createPillars(
+        { stem: '甲', branch: '子' },
+        { stem: '丁', branch: '卯' },
+        { stem: '癸', branch: '酉' }, // 癸酉日柱
+        { stem: '庚', branch: '申' }
+      );
+      const result = calculateBaZiShenSha(
+        pillars.year,
+        pillars.month,
+        pillars.day,
+        pillars.hour
+      );
+      const liuxiu = findShenSha(result, '六秀日');
+      expect(liuxiu).toBeDefined();
+    });
+  });
+
+  describe('八專日', () => {
+    it('甲寅日柱應找到八專日', () => {
+      const pillars = createPillars(
+        { stem: '甲', branch: '子' },
+        { stem: '丁', branch: '卯' },
+        { stem: '甲', branch: '寅' }, // 甲寅日柱
+        { stem: '庚', branch: '申' }
+      );
+      const result = calculateBaZiShenSha(
+        pillars.year,
+        pillars.month,
+        pillars.day,
+        pillars.hour
+      );
+      const bazhuan = findShenSha(result, '八專日');
+      expect(bazhuan).toBeDefined();
+      expect(bazhuan?.type).toBe('中');
+    });
+
+    it('壬子日柱應找到八專日', () => {
+      const pillars = createPillars(
+        { stem: '甲', branch: '午' },
+        { stem: '丁', branch: '卯' },
+        { stem: '壬', branch: '子' }, // 壬子日柱
+        { stem: '庚', branch: '申' }
+      );
+      const result = calculateBaZiShenSha(
+        pillars.year,
+        pillars.month,
+        pillars.day,
+        pillars.hour
+      );
+      const bazhuan = findShenSha(result, '八專日');
+      expect(bazhuan).toBeDefined();
+    });
+  });
+
+  describe('弔客', () => {
+    it('年支子見戌支應找到弔客', () => {
+      const pillars = createPillars(
+        { stem: '甲', branch: '子' }, // 年支子（弔客見戌）
+        { stem: '丙', branch: '戌' }, // 月支戌
+        { stem: '甲', branch: '丑' },
+        { stem: '庚', branch: '午' }
+      );
+      const result = calculateBaZiShenSha(
+        pillars.year,
+        pillars.month,
+        pillars.day,
+        pillars.hour
+      );
+      const diaoke = findShenSha(result, '弔客');
+      expect(diaoke).toBeDefined();
+      expect(diaoke?.type).toBe('凶');
+    });
+  });
+
+  describe('天狗', () => {
+    it('年支子見戌支應找到天狗', () => {
+      const pillars = createPillars(
+        { stem: '甲', branch: '子' }, // 年支子（天狗見戌）
+        { stem: '丙', branch: '戌' }, // 月支戌
+        { stem: '甲', branch: '丑' },
+        { stem: '庚', branch: '午' }
+      );
+      const result = calculateBaZiShenSha(
+        pillars.year,
+        pillars.month,
+        pillars.day,
+        pillars.hour
+      );
+      const tiangou = findShenSha(result, '天狗');
+      expect(tiangou).toBeDefined();
+      expect(tiangou?.type).toBe('凶');
+    });
+  });
+
+  describe('截空', () => {
+    it('甲子旬日柱見戌亥支應找到截空', () => {
+      // 甲子旬：甲子、乙丑、丙寅、丁卯、戊辰、己巳、庚午、辛未、壬申、癸酉
+      // 空亡：戌、亥
+      const pillars = createPillars(
+        { stem: '甲', branch: '戌' }, // 年支戌（空亡）
+        { stem: '丙', branch: '寅' },
+        { stem: '甲', branch: '子' }, // 甲子日柱（甲子旬）
+        { stem: '庚', branch: '亥' } // 時支亥（空亡）
+      );
+      const result = calculateBaZiShenSha(
+        pillars.year,
+        pillars.month,
+        pillars.day,
+        pillars.hour
+      );
+      const kongwang = findShenSha(result, '截空');
+      expect(kongwang).toBeDefined();
+      expect(kongwang?.type).toBe('凶');
+      expect(kongwang?.positions).toContain('年柱');
+      expect(kongwang?.positions).toContain('時柱');
+    });
+
+    it('甲寅旬日柱見子丑支應找到截空', () => {
+      // 甲寅旬空亡：子、丑
+      const pillars = createPillars(
+        { stem: '甲', branch: '子' }, // 年支子（空亡）
+        { stem: '丙', branch: '丑' }, // 月支丑（空亡）
+        { stem: '甲', branch: '寅' }, // 甲寅日柱（甲寅旬）
+        { stem: '庚', branch: '午' }
+      );
+      const result = calculateBaZiShenSha(
+        pillars.year,
+        pillars.month,
+        pillars.day,
+        pillars.hour
+      );
+      const kongwang = findShenSha(result, '截空');
+      expect(kongwang).toBeDefined();
+      expect(kongwang?.positions).toContain('年柱');
+      expect(kongwang?.positions).toContain('月柱');
+    });
+  });
+
+  describe('沐浴', () => {
+    it('日干甲見子支應找到沐浴', () => {
+      const pillars = createPillars(
+        { stem: '甲', branch: '子' }, // 年支子（甲沐浴在子）
+        { stem: '丙', branch: '寅' },
+        { stem: '甲', branch: '辰' }, // 日干甲
+        { stem: '庚', branch: '午' }
+      );
+      const result = calculateBaZiShenSha(
+        pillars.year,
+        pillars.month,
+        pillars.day,
+        pillars.hour
+      );
+      const muyu = findShenSha(result, '沐浴');
+      expect(muyu).toBeDefined();
+      expect(muyu?.type).toBe('中');
+    });
+
+    it('日干庚見午支應找到沐浴', () => {
+      const pillars = createPillars(
+        { stem: '甲', branch: '午' }, // 年支午（庚沐浴在午）
+        { stem: '丙', branch: '寅' },
+        { stem: '庚', branch: '辰' }, // 日干庚
+        { stem: '壬', branch: '子' }
+      );
+      const result = calculateBaZiShenSha(
+        pillars.year,
+        pillars.month,
+        pillars.day,
+        pillars.hour
+      );
+      const muyu = findShenSha(result, '沐浴');
+      expect(muyu).toBeDefined();
+    });
+  });
+
+  describe('月破', () => {
+    it('月支子日支午應找到月破', () => {
+      const pillars = createPillars(
+        { stem: '甲', branch: '寅' },
+        { stem: '丙', branch: '子' }, // 月支子
+        { stem: '甲', branch: '午' }, // 日支午（子午對沖）
+        { stem: '庚', branch: '申' }
+      );
+      const result = calculateBaZiShenSha(
+        pillars.year,
+        pillars.month,
+        pillars.day,
+        pillars.hour
+      );
+      const yuepo = findShenSha(result, '月破');
+      expect(yuepo).toBeDefined();
+      expect(yuepo?.type).toBe('凶');
+      expect(yuepo?.positions).toContain('日柱');
+    });
+
+    it('月支寅時支申應找到月破', () => {
+      const pillars = createPillars(
+        { stem: '甲', branch: '子' },
+        { stem: '丙', branch: '寅' }, // 月支寅
+        { stem: '甲', branch: '辰' },
+        { stem: '庚', branch: '申' } // 時支申（寅申對沖）
+      );
+      const result = calculateBaZiShenSha(
+        pillars.year,
+        pillars.month,
+        pillars.day,
+        pillars.hour
+      );
+      const yuepo = findShenSha(result, '月破');
+      expect(yuepo).toBeDefined();
+      expect(yuepo?.positions).toContain('時柱');
+    });
+  });
+
+  describe('隔角', () => {
+    it('年支子見寅支應找到隔角', () => {
+      const pillars = createPillars(
+        { stem: '甲', branch: '子' }, // 年支子（隔角見寅戌）
+        { stem: '丙', branch: '寅' }, // 月支寅
+        { stem: '甲', branch: '辰' },
+        { stem: '庚', branch: '午' }
+      );
+      const result = calculateBaZiShenSha(
+        pillars.year,
+        pillars.month,
+        pillars.day,
+        pillars.hour
+      );
+      const gejiao = findShenSha(result, '隔角');
+      expect(gejiao).toBeDefined();
+      expect(gejiao?.type).toBe('凶');
+      expect(gejiao?.positions).toContain('月柱');
+    });
+  });
+
+  describe('元辰', () => {
+    it('年支子見未支或午支應找到元辰', () => {
+      const pillars = createPillars(
+        { stem: '甲', branch: '子' }, // 年支子（元辰見未/午）
+        { stem: '丙', branch: '未' }, // 月支未
+        { stem: '甲', branch: '辰' },
+        { stem: '庚', branch: '午' } // 時支午
+      );
+      const result = calculateBaZiShenSha(
+        pillars.year,
+        pillars.month,
+        pillars.day,
+        pillars.hour
+      );
+      const yuanchen = findShenSha(result, '元辰');
+      expect(yuanchen).toBeDefined();
+      expect(yuanchen?.type).toBe('凶');
+    });
+  });
 });

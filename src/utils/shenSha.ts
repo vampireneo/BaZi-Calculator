@@ -623,6 +623,257 @@ const SHIE_DABAI: string[] = [
   '癸亥',
 ];
 
+/**
+ * 月德合查詢表
+ * 以月支查詢，為月德貴人的六合版本
+ */
+const YUEDE_HE: Record<string, string> = {
+  寅: '辛',
+  午: '辛',
+  戌: '辛', // 寅午戌月見辛（丙合辛）
+  申: '丁',
+  子: '丁',
+  辰: '丁', // 申子辰月見丁（壬合丁）
+  亥: '己',
+  卯: '己',
+  未: '己', // 亥卯未月見己（甲合己）
+  巳: '乙',
+  酉: '乙',
+  丑: '乙', // 巳酉丑月見乙（庚合乙）
+};
+
+/**
+ * 天德合查詢表
+ * 以月支查詢，為天德貴人的六合版本（只有天干才有合）
+ */
+const TIANDE_HE: Record<string, string> = {
+  寅: '壬', // 天德丁，合壬
+  辰: '丁', // 天德壬，合丁
+  巳: '丙', // 天德辛，合丙
+  未: '己', // 天德甲，合己
+  申: '戊', // 天德癸，合戊
+  戌: '辛', // 天德丙，合辛
+  亥: '庚', // 天德乙，合庚
+  丑: '乙', // 天德庚，合乙
+};
+
+/**
+ * 六秀日查詢表
+ * 特定日柱組合，主聰明秀氣
+ */
+const LIUXIU: string[] = ['丙午', '丁未', '戊子', '己丑', '癸巳', '癸酉'];
+
+/**
+ * 八專日查詢表
+ * 特定日柱組合，主專一之氣
+ */
+const BAZHUAN: string[] = [
+  '甲寅',
+  '乙卯',
+  '戊辰',
+  '己未',
+  '庚申',
+  '辛酉',
+  '壬子',
+  '癸亥',
+];
+
+/**
+ * 弔客查詢表
+ * 以年支查詢
+ */
+const DIAOKE: Record<string, string> = {
+  子: '戌',
+  丑: '亥',
+  寅: '子',
+  卯: '丑',
+  辰: '寅',
+  巳: '卯',
+  午: '辰',
+  未: '巳',
+  申: '午',
+  酉: '未',
+  戌: '申',
+  亥: '酉',
+};
+
+/**
+ * 天狗查詢表
+ * 以年支查詢
+ */
+const TIANGOU: Record<string, string> = {
+  子: '戌',
+  丑: '亥',
+  寅: '子',
+  卯: '丑',
+  辰: '寅',
+  巳: '卯',
+  午: '辰',
+  未: '巳',
+  申: '午',
+  酉: '未',
+  戌: '申',
+  亥: '酉',
+};
+
+/**
+ * 截空（空亡）查詢表
+ * 以日柱所在旬查詢空亡地支
+ */
+const KONGWANG: Record<string, string[]> = {
+  甲子: ['戌', '亥'],
+  甲戌: ['申', '酉'],
+  甲申: ['午', '未'],
+  甲午: ['辰', '巳'],
+  甲辰: ['寅', '卯'],
+  甲寅: ['子', '丑'],
+};
+
+/**
+ * 六十甲子對應的旬首
+ */
+const JIAZI_TO_XUN: Record<string, string> = {
+  甲子: '甲子',
+  乙丑: '甲子',
+  丙寅: '甲子',
+  丁卯: '甲子',
+  戊辰: '甲子',
+  己巳: '甲子',
+  庚午: '甲子',
+  辛未: '甲子',
+  壬申: '甲子',
+  癸酉: '甲子',
+  甲戌: '甲戌',
+  乙亥: '甲戌',
+  丙子: '甲戌',
+  丁丑: '甲戌',
+  戊寅: '甲戌',
+  己卯: '甲戌',
+  庚辰: '甲戌',
+  辛巳: '甲戌',
+  壬午: '甲戌',
+  癸未: '甲戌',
+  甲申: '甲申',
+  乙酉: '甲申',
+  丙戌: '甲申',
+  丁亥: '甲申',
+  戊子: '甲申',
+  己丑: '甲申',
+  庚寅: '甲申',
+  辛卯: '甲申',
+  壬辰: '甲申',
+  癸巳: '甲申',
+  甲午: '甲午',
+  乙未: '甲午',
+  丙申: '甲午',
+  丁酉: '甲午',
+  戊戌: '甲午',
+  己亥: '甲午',
+  庚子: '甲午',
+  辛丑: '甲午',
+  壬寅: '甲午',
+  癸卯: '甲午',
+  甲辰: '甲辰',
+  乙巳: '甲辰',
+  丙午: '甲辰',
+  丁未: '甲辰',
+  戊申: '甲辰',
+  己酉: '甲辰',
+  庚戌: '甲辰',
+  辛亥: '甲辰',
+  壬子: '甲辰',
+  癸丑: '甲辰',
+  甲寅: '甲寅',
+  乙卯: '甲寅',
+  丙辰: '甲寅',
+  丁巳: '甲寅',
+  戊午: '甲寅',
+  己未: '甲寅',
+  庚申: '甲寅',
+  辛酉: '甲寅',
+  壬戌: '甲寅',
+  癸亥: '甲寅',
+};
+
+/**
+ * 元辰查詢表
+ * 以年支查詢，男女命不同
+ * 男命陽年順行，陰年逆行；女命相反
+ */
+const YUANCHEN_YANG: Record<string, string> = {
+  // 陽年男命/陰年女命
+  子: '未',
+  寅: '酉',
+  辰: '亥',
+  午: '丑',
+  申: '卯',
+  戌: '巳',
+};
+const YUANCHEN_YIN: Record<string, string> = {
+  // 陰年男命/陽年女命
+  丑: '午',
+  卯: '申',
+  巳: '戌',
+  未: '子',
+  酉: '寅',
+  亥: '辰',
+};
+
+/**
+ * 沐浴查詢表
+ * 以日干查詢十二長生的沐浴位
+ */
+const MUYU: Record<string, string> = {
+  甲: '子',
+  乙: '巳',
+  丙: '卯',
+  丁: '申',
+  戊: '卯',
+  己: '申',
+  庚: '午',
+  辛: '亥',
+  壬: '酉',
+  癸: '寅',
+};
+
+/**
+ * 月破查詢表
+ * 月支的對沖地支
+ */
+const YUEPO: Record<string, string> = {
+  子: '午',
+  丑: '未',
+  寅: '申',
+  卯: '酉',
+  辰: '戌',
+  巳: '亥',
+  午: '子',
+  未: '丑',
+  申: '寅',
+  酉: '卯',
+  戌: '辰',
+  亥: '巳',
+};
+
+/**
+ * 隔角查詢表
+ * 以年支查詢，地支相隔兩位
+ */
+const GEJIAO: Record<string, string[]> = {
+  子: ['寅', '戌'],
+  丑: ['卯', '亥'],
+  寅: ['辰', '子'],
+  卯: ['巳', '丑'],
+  辰: ['午', '寅'],
+  巳: ['未', '卯'],
+  午: ['申', '辰'],
+  未: ['酉', '巳'],
+  申: ['戌', '午'],
+  酉: ['亥', '未'],
+  戌: ['子', '申'],
+  亥: ['丑', '酉'],
+};
+
 // 有效的天干和地支常量（用於輸入驗證）
 const VALID_STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
 const VALID_BRANCHES = [
@@ -1162,6 +1413,127 @@ export function calculateBaZiShenSha(
   if (SHIE_DABAI.includes(dayPillarStr)) {
     addShenSha(['日柱'], '十惡大敗', '凶', '主錢財難聚、事業多阻、須防破敗');
   }
+
+  // 37. 月德合（以月支查，看四柱天干）
+  addShenSha(
+    findStemPositions(YUEDE_HE[monthBranch]),
+    '月德合',
+    '吉',
+    '主品德高尚、處事平順、為月德之合神'
+  );
+
+  // 38. 天德合（以月支查，看四柱天干）
+  const tiandeHeTarget = TIANDE_HE[monthBranch];
+  if (tiandeHeTarget) {
+    addShenSha(
+      findStemPositions(tiandeHeTarget),
+      '天德合',
+      '吉',
+      '主逢凶化吉、貴人相助、為天德之合神'
+    );
+  }
+
+  // 39. 六秀日（特定日柱組合）
+  if (LIUXIU.includes(dayPillarStr)) {
+    addShenSha(['日柱'], '六秀日', '吉', '主聰明秀氣、才華出眾、氣質非凡');
+  }
+
+  // 40. 八專日（特定日柱組合）
+  if (BAZHUAN.includes(dayPillarStr)) {
+    addShenSha(
+      ['日柱'],
+      '八專日',
+      '中',
+      '主專一之氣、性格執著、感情專注但須防固執'
+    );
+  }
+
+  // 41. 弔客（以年支查）
+  addShenSha(
+    findBranchPositions(DIAOKE[yearBranch]),
+    '弔客',
+    '凶',
+    '主喪服之事、須防親友有難、宜謹慎行事'
+  );
+
+  // 42. 天狗（以年支查）
+  addShenSha(
+    findBranchPositions(TIANGOU[yearBranch]),
+    '天狗',
+    '凶',
+    '主是非口舌、易有意外、須防血光之災'
+  );
+
+  // 43. 截空/空亡（以日柱所在旬查）
+  const xunShou = JIAZI_TO_XUN[dayPillarStr];
+  if (xunShou) {
+    const kongwangBranches = KONGWANG[xunShou];
+    if (kongwangBranches) {
+      const kongwangPositions: string[] = [];
+      allBranches.forEach(({ branch, position }) => {
+        if (kongwangBranches.includes(branch)) {
+          kongwangPositions.push(position);
+        }
+      });
+      addShenSha(
+        kongwangPositions,
+        '截空',
+        '凶',
+        '主空虛不實、事多阻滯、但亦主超脫世俗'
+      );
+    }
+  }
+
+  // 44. 沐浴（以日干查）
+  addShenSha(
+    findBranchPositions(MUYU[dayStem]),
+    '沐浴',
+    '中',
+    '主風流多情、桃花旺盛、須防感情糾紛'
+  );
+
+  // 45. 月破（以月支查對沖）
+  const yuepoTarget = YUEPO[monthBranch];
+  if (yuepoTarget) {
+    const yuepoPositions: string[] = [];
+    // 月破是指日支或時支與月支對沖
+    if (dayBranch === yuepoTarget) {
+      yuepoPositions.push('日柱');
+    }
+    if (hourBranch === yuepoTarget) {
+      yuepoPositions.push('時柱');
+    }
+    addShenSha(yuepoPositions, '月破', '凶', '主諸事不順、易有破敗、不宜進取');
+  }
+
+  // 46. 隔角（以年支查）
+  const gejiaoBranches = GEJIAO[yearBranch];
+  if (gejiaoBranches) {
+    const gejiaoPositions: string[] = [];
+    allBranches.forEach(({ branch, position }) => {
+      if (gejiaoBranches.includes(branch) && position !== '年柱') {
+        gejiaoPositions.push(position);
+      }
+    });
+    addShenSha(gejiaoPositions, '隔角', '凶', '主六親緣薄、易有隔閡、人際關係需注意');
+  }
+
+  // 47. 元辰（以年支查，陽年男/陰年女用YANG表，陰年男/陽年女用YIN表）
+  // 注意：此處簡化處理，同時檢查兩種情況
+  const yuanchenYangTarget = YUANCHEN_YANG[yearBranch];
+  const yuanchenYinTarget = YUANCHEN_YIN[yearBranch];
+  const yuanchenPositions: string[] = [];
+  allBranches.forEach(({ branch, position }) => {
+    if (
+      (yuanchenYangTarget && branch === yuanchenYangTarget) ||
+      (yuanchenYinTarget && branch === yuanchenYinTarget)
+    ) {
+      if (!yuanchenPositions.includes(position)) {
+        yuanchenPositions.push(position);
+      }
+    }
+  });
+  addShenSha(yuanchenPositions, '元辰', '凶', '主耗散破敗、諸事不順、須謹慎理財');
 
   // 按吉凶排序：吉神在前，中性次之，凶神在後
   const typeOrder = { 吉: 0, 中: 1, 凶: 2 };
