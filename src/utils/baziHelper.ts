@@ -15,6 +15,10 @@ import {
   type PillarTenGods,
   type TenGod,
 } from './fiveElements';
+import {
+  calculateBaZiShenSha,
+  type BaZiShenSha,
+} from './shenSha';
 
 export interface BirthInfo {
   gender: 'male' | 'female';
@@ -38,6 +42,9 @@ export interface Pillar {
   hiddenStemsWithTenGods?: HiddenStemWithTenGod[];
 }
 
+// Re-export BaZiShenSha for external use
+export type { BaZiShenSha };
+
 export interface BaZiResult {
   solarDate: string;
   lunarDate: string;
@@ -48,6 +55,7 @@ export interface BaZiResult {
   gender: string;
   fiveElements: FiveElementsCount; // 五行統計
   tenGods: PillarTenGods; // 四柱十神
+  shenSha: BaZiShenSha[]; // 八字神煞列表
   // 真太陽時校正資訊
   correctionInfo?: {
     cityName: string;
@@ -161,6 +169,14 @@ export function calculateBaZi(birthInfo: BirthInfo): BaZiResult {
     dayMasterStem
   );
 
+  // 計算八字神煞
+  const shenSha = calculateBaZiShenSha(
+    yearPillar,
+    monthPillar,
+    dayPillar,
+    hourPillar
+  );
+
   return {
     solarDate: solarTime.getSolarDay().toString(),
     lunarDate: convertToTraditional(lunarDay.toString()),
@@ -171,6 +187,7 @@ export function calculateBaZi(birthInfo: BirthInfo): BaZiResult {
     gender: gender === 'male' ? '男' : '女',
     fiveElements,
     tenGods,
+    shenSha,
     correctionInfo: {
       cityName: selectedCity.name,
       isDST: trueSolarTimeResult.isDST,

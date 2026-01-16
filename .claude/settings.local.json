@@ -14,7 +14,16 @@
       "Bash(git rev-parse:*)",
       "Bash(gh api:*)",
       "Bash(node:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "WebSearch",
+      "Bash(gh pr create:*)",
+      "WebFetch(domain:6tail.cn)",
+      "mcp__plugin_playwright_playwright__browser_click",
+      "mcp__plugin_playwright_playwright__browser_snapshot",
+      "mcp__plugin_playwright_playwright__browser_fill_form",
+      "mcp__plugin_playwright_playwright__browser_close",
+      "WebFetch(domain:github.com)",
+      "mcp__plugin_playwright_playwright__browser_navigate"
     ]
   }
 }
