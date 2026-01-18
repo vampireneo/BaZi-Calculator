@@ -191,6 +191,18 @@ const PillarCard: React.FC<{
         </div>
       </div>
 
+      {/* 纳音 */}
+      {pillar.nayin && (
+        <div className="mt-4">
+          <div className="text-center">
+            <div className="text-xs text-gray-500 mb-1">納音</div>
+            <div className="inline-block bg-gradient-to-r from-amber-100 to-yellow-100 border-2 border-amber-300 rounded-lg px-3 py-1.5">
+              <span className="text-sm font-bold text-amber-800">{pillar.nayin}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 藏干與十神 */}
       {pillar.hiddenStemsWithTenGods && pillar.hiddenStemsWithTenGods.length > 0 && (
         <div className="mt-4 pt-4 border-t border-gray-200">
