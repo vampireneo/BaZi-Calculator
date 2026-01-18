@@ -38,6 +38,7 @@ export interface HiddenStemWithTenGod {
 export interface Pillar {
   heavenlyStem: string;
   earthlyBranch: string;
+  nayin?: string; // 納音五行
   hiddenStems?: string[];
   hiddenStemsWithTenGods?: HiddenStemWithTenGod[];
 }
@@ -113,24 +114,28 @@ export function calculateBaZi(birthInfo: BirthInfo): BaZiResult {
   const yearPillar: Pillar = {
     heavenlyStem: yearSixtyCycle.getHeavenStem().getName(),
     earthlyBranch: yearSixtyCycle.getEarthBranch().getName(),
+    nayin: yearSixtyCycle.getSound().getName(),
     hiddenStems: getHiddenStems(yearSixtyCycle.getEarthBranch()),
   };
 
   const monthPillar: Pillar = {
     heavenlyStem: monthSixtyCycle.getHeavenStem().getName(),
     earthlyBranch: monthSixtyCycle.getEarthBranch().getName(),
+    nayin: monthSixtyCycle.getSound().getName(),
     hiddenStems: getHiddenStems(monthSixtyCycle.getEarthBranch()),
   };
 
   const dayPillar: Pillar = {
     heavenlyStem: daySixtyCycle.getHeavenStem().getName(),
     earthlyBranch: daySixtyCycle.getEarthBranch().getName(),
+    nayin: daySixtyCycle.getSound().getName(),
     hiddenStems: getHiddenStems(daySixtyCycle.getEarthBranch()),
   };
 
   const hourPillar: Pillar = {
     heavenlyStem: hourSixtyCycle.getHeavenStem().getName(),
     earthlyBranch: hourSixtyCycle.getEarthBranch().getName(),
+    nayin: hourSixtyCycle.getSound().getName(),
     hiddenStems: getHiddenStems(hourSixtyCycle.getEarthBranch()),
   };
 

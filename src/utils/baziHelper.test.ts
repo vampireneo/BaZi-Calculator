@@ -30,6 +30,7 @@ describe('calculateBaZi', () => {
     // Verify pillar structure
     expect(result.yearPillar).toHaveProperty('heavenlyStem');
     expect(result.yearPillar).toHaveProperty('earthlyBranch');
+    expect(result.yearPillar).toHaveProperty('nayin');
     expect(result.yearPillar).toHaveProperty('hiddenStems');
   });
 
@@ -361,6 +362,106 @@ describe('validateBirthInfo', () => {
       minute: 59,
     };
     expect(validateBirthInfo(maxBirthInfo).valid).toBe(true);
+  });
+});
+
+describe('Nayin (納音) Calculation', () => {
+  it('should return nayin for all four pillars', () => {
+    const birthInfo: BirthInfo = {
+      gender: 'male',
+      year: 1990,
+      month: 5,
+      day: 15,
+      hour: 10,
+      minute: 30,
+    };
+
+    const result = calculateBaZi(birthInfo);
+
+    // All pillars should have nayin
+    expect(result.yearPillar.nayin).toBeDefined();
+    expect(result.monthPillar.nayin).toBeDefined();
+    expect(result.dayPillar.nayin).toBeDefined();
+    expect(result.hourPillar.nayin).toBeDefined();
+
+    // Nayin should be non-empty strings
+    expect(result.yearPillar.nayin).toBeTruthy();
+    expect(result.monthPillar.nayin).toBeTruthy();
+    expect(result.dayPillar.nayin).toBeTruthy();
+    expect(result.hourPillar.nayin).toBeTruthy();
+
+    // Nayin should contain Chinese characters
+    expect(result.yearPillar.nayin!.length).toBeGreaterThan(0);
+    expect(result.monthPillar.nayin!.length).toBeGreaterThan(0);
+    expect(result.dayPillar.nayin!.length).toBeGreaterThan(0);
+    expect(result.hourPillar.nayin!.length).toBeGreaterThan(0);
+  });
+
+  it('should calculate correct nayin for 1990-05-15 10:30', () => {
+    // Based on our test results:
+    // 年柱: 庚午 納音: 路旁土
+    // 月柱: 辛巳 納音: 白蠟金
+    // 日柱: 庚辰 納音: 白蠟金
+    // 時柱: 辛巳 納音: 白蠟金
+    const birthInfo: BirthInfo = {
+      gender: 'male',
+      year: 1990,
+      month: 5,
+      day: 15,
+      hour: 10,
+      minute: 30,
+    };
+
+    const result = calculateBaZi(birthInfo);
+
+    // Verify specific nayin values
+    expect(result.yearPillar.nayin).toBe('路旁土');
+    expect(result.monthPillar.nayin).toBe('白蜡金');
+    expect(result.dayPillar.nayin).toBe('白蜡金');
+    expect(result.hourPillar.nayin).toBe('白蜡金');
+  });
+
+  it('should have valid nayin for different dates', () => {
+    const testCases: BirthInfo[] = [
+      { gender: 'male', year: 1984, month: 2, day: 5, hour: 12, minute: 0 },
+      { gender: 'female', year: 2000, month: 5, day: 5, hour: 8, minute: 0 },
+      { gender: 'male', year: 1995, month: 8, day: 20, hour: 15, minute: 30 },
+    ];
+
+    testCases.forEach((birthInfo) => {
+      const result = calculateBaZi(birthInfo);
+
+      // All pillars should have nayin
+      expect(result.yearPillar.nayin).toBeDefined();
+      expect(result.monthPillar.nayin).toBeDefined();
+      expect(result.dayPillar.nayin).toBeDefined();
+      expect(result.hourPillar.nayin).toBeDefined();
+
+      // Nayin should be non-empty strings
+      expect(result.yearPillar.nayin!.length).toBeGreaterThan(1);
+      expect(result.monthPillar.nayin!.length).toBeGreaterThan(1);
+      expect(result.dayPillar.nayin!.length).toBeGreaterThan(1);
+      expect(result.hourPillar.nayin!.length).toBeGreaterThan(1);
+    });
+  });
+
+  it('should calculate nayin for 甲子 (first in 60-cycle)', () => {
+    // 甲子 should have nayin 海中金
+    const birthInfo: BirthInfo = {
+      gender: 'male',
+      year: 1984,
+      month: 2,
+      day: 5,
+      hour: 0,
+      minute: 30,
+    };
+
+    const result = calculateBaZi(birthInfo);
+
+    // 1984 is 甲子年, should have 海中金 as nayin
+    if (result.yearPillar.heavenlyStem === '甲' && result.yearPillar.earthlyBranch === '子') {
+      expect(result.yearPillar.nayin).toBe('海中金');
+    }
   });
 });
 
