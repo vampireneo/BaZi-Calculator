@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { BaZiResult as BaZiResultType, Pillar, BaZiShenSha } from '../utils/baziHelper';
 import {
   getFiveElementStrength,
@@ -13,7 +13,138 @@ interface BaZiResultProps {
   result: BaZiResultType;
 }
 
-const PillarCard: React.FC<{ title: string; pillar: Pillar; tenGod?: TenGod | null; gender?: string }> = ({ title, pillar, tenGod, gender }) => {
+// 神煞類型顏色配置 - 必須在組件定義前聲明
+const SHENSHA_TYPE_COLORS = {
+  吉: {
+    bg: 'bg-emerald-50',
+    border: 'border-emerald-300',
+    text: 'text-emerald-800',
+    badge: 'bg-emerald-100 border-emerald-300',
+  },
+  中: {
+    bg: 'bg-amber-50',
+    border: 'border-amber-300',
+    text: 'text-amber-800',
+    badge: 'bg-amber-100 border-amber-300',
+  },
+  凶: {
+    bg: 'bg-rose-50',
+    border: 'border-rose-300',
+    text: 'text-rose-800',
+    badge: 'bg-rose-100 border-rose-300',
+  },
+};
+
+// 神煞詳細資料彈出視窗組件
+const ShenShaModal: React.FC<{
+  shenSha: BaZiShenSha | null;
+  onClose: () => void;
+}> = ({ shenSha, onClose }) => {
+  // 添加 Escape 鍵支持
+  useEffect(() => {
+    if (!shenSha) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [shenSha, onClose]);
+
+  if (!shenSha) return null;
+
+  const colors = SHENSHA_TYPE_COLORS[shenSha.type];
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="shensha-modal-title"
+    >
+      <div
+        className={`${colors.bg} border-2 ${colors.border} rounded-xl p-6 max-w-md w-full shadow-2xl animate-fade-in`}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h3
+              id="shensha-modal-title"
+              className={`text-2xl font-bold ${colors.text} mb-1`}
+            >
+              {shenSha.name}
+            </h3>
+            <div className="flex items-center gap-2">
+              <span
+                className={`text-sm font-medium px-3 py-1 rounded-full ${colors.badge} border`}
+              >
+                {shenSha.type === '吉' ? '吉神' : shenSha.type === '凶' ? '凶神' : '中性'}
+              </span>
+              <span className="text-sm text-gray-600">
+                {shenSha.positions.join('、')}
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+            aria-label="關閉神煞詳情"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+        <div className={`text-base ${colors.text} leading-relaxed`}>
+          {shenSha.description}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// 輔助函數：將神煞按照柱位置分組
+const groupShenShaByPillar = (
+  shenSha: BaZiShenSha[]
+): Record<'年柱' | '月柱' | '日柱' | '時柱', BaZiShenSha[]> => {
+  const groups: Record<'年柱' | '月柱' | '日柱' | '時柱', BaZiShenSha[]> = {
+    年柱: [],
+    月柱: [],
+    日柱: [],
+    時柱: [],
+  };
+
+  shenSha.forEach((s) => {
+    s.positions.forEach((position) => {
+      if (position === '年柱' || position === '月柱' || position === '日柱' || position === '時柱') {
+        groups[position].push(s);
+      }
+    });
+  });
+
+  return groups;
+};
+
+const PillarCard: React.FC<{
+  title: string;
+  pillar: Pillar;
+  tenGod?: TenGod | null;
+  gender?: string;
+  shenSha?: BaZiShenSha[];
+  onShenShaClick?: (shenSha: BaZiShenSha) => void;
+}> = ({ title, pillar, tenGod, gender, shenSha = [], onShenShaClick }) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-6 border-2 border-gray-200 hover:border-ink-red transition-all duration-300 transform hover:scale-105">
       <div className="text-center mb-4">
@@ -78,6 +209,31 @@ const PillarCard: React.FC<{ title: string; pillar: Pillar; tenGod?: TenGod | nu
                   )}
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 神煞 */}
+      {shenSha.length > 0 && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="text-center">
+            <div className="text-xs text-gray-500 mb-2">神煞</div>
+            <div className="flex flex-wrap gap-1.5 justify-center">
+              {shenSha.map((s, index) => {
+                const colors = SHENSHA_TYPE_COLORS[s.type];
+                return (
+                  <button
+                    key={`${s.name}-${index}`}
+                    onClick={() => onShenShaClick?.(s)}
+                    className={`text-xs ${colors.badge} ${colors.text} px-2 py-1 rounded border cursor-pointer hover:scale-110 hover:shadow-md transition-all duration-200`}
+                    aria-label={`查看 ${s.name} 的詳細資料`}
+                    title="點擊查看詳情"
+                  >
+                    {s.name}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -248,28 +404,6 @@ const FiveElementsDisplay: React.FC<{ result: BaZiResultType }> = ({ result }) =
   );
 };
 
-// 神煞類型顏色配置
-const SHENSHA_TYPE_COLORS = {
-  吉: {
-    bg: 'bg-emerald-50',
-    border: 'border-emerald-300',
-    text: 'text-emerald-800',
-    badge: 'bg-emerald-100 border-emerald-300',
-  },
-  中: {
-    bg: 'bg-amber-50',
-    border: 'border-amber-300',
-    text: 'text-amber-800',
-    badge: 'bg-amber-100 border-amber-300',
-  },
-  凶: {
-    bg: 'bg-rose-50',
-    border: 'border-rose-300',
-    text: 'text-rose-800',
-    badge: 'bg-rose-100 border-rose-300',
-  },
-};
-
 const ShenShaDisplay: React.FC<{ shenSha: BaZiShenSha[] }> = ({ shenSha }) => {
   // 分離吉神、中性、凶神
   const auspicious = shenSha.filter((s) => s.type === '吉');
@@ -333,8 +467,22 @@ const ShenShaDisplay: React.FC<{ shenSha: BaZiShenSha[] }> = ({ shenSha }) => {
 };
 
 export const BaZiResult: React.FC<BaZiResultProps> = ({ result }) => {
+  const [selectedShenSha, setSelectedShenSha] = useState<BaZiShenSha | null>(null);
+
+  // 將神煞按照柱位置分組 (使用 useMemo 優化性能)
+  const shenShaByPillar = useMemo(
+    () => groupShenShaByPillar(result.shenSha),
+    [result.shenSha]
+  );
+
   return (
     <div className="w-full max-w-6xl mx-auto mt-12 animate-fade-in">
+      {/* 神煞詳細資料彈出視窗 */}
+      <ShenShaModal
+        shenSha={selectedShenSha}
+        onClose={() => setSelectedShenSha(null)}
+      />
+
       {/* 基本資訊 */}
       <div className="bg-white rounded-lg shadow-lg p-6 mb-8 border border-gray-200">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
@@ -396,10 +544,34 @@ export const BaZiResult: React.FC<BaZiResultProps> = ({ result }) => {
         </h2>
 
         <div className="grid grid-cols-4 gap-2 md:gap-6">
-          <PillarCard title="時柱 Hour" pillar={result.hourPillar} tenGod={result.tenGods.hour} />
-          <PillarCard title="日柱 Day" pillar={result.dayPillar} gender={result.gender} />
-          <PillarCard title="月柱 Month" pillar={result.monthPillar} tenGod={result.tenGods.month} />
-          <PillarCard title="年柱 Year" pillar={result.yearPillar} tenGod={result.tenGods.year} />
+          <PillarCard
+            title="時柱 Hour"
+            pillar={result.hourPillar}
+            tenGod={result.tenGods.hour}
+            shenSha={shenShaByPillar.時柱}
+            onShenShaClick={setSelectedShenSha}
+          />
+          <PillarCard
+            title="日柱 Day"
+            pillar={result.dayPillar}
+            gender={result.gender}
+            shenSha={shenShaByPillar.日柱}
+            onShenShaClick={setSelectedShenSha}
+          />
+          <PillarCard
+            title="月柱 Month"
+            pillar={result.monthPillar}
+            tenGod={result.tenGods.month}
+            shenSha={shenShaByPillar.月柱}
+            onShenShaClick={setSelectedShenSha}
+          />
+          <PillarCard
+            title="年柱 Year"
+            pillar={result.yearPillar}
+            tenGod={result.tenGods.year}
+            shenSha={shenShaByPillar.年柱}
+            onShenShaClick={setSelectedShenSha}
+          />
         </div>
       </div>
 
