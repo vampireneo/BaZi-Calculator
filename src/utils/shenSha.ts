@@ -874,6 +874,924 @@ const GEJIAO: Record<string, string[]> = {
   亥: ['丑', '酉'],
 };
 
+/**
+ * 玉堂貴人查詢表
+ * 以日干查詢
+ */
+const YUTANG: Record<string, string> = {
+  甲: '辰',
+  乙: '卯',
+  丙: '寅',
+  丁: '亥',
+  戊: '寅',
+  己: '亥',
+  庚: '申',
+  辛: '酉',
+  壬: '戌',
+  癸: '未',
+};
+
+/**
+ * 文曲貴人查詢表（又稱文曲星）
+ * 以日干查詢
+ */
+const WENQU: Record<string, string> = {
+  甲: '巳',
+  乙: '午',
+  丙: '申',
+  丁: '酉',
+  戊: '申',
+  己: '酉',
+  庚: '亥',
+  辛: '子',
+  壬: '寅',
+  癸: '卯',
+};
+
+/**
+ * 德秀貴人查詢表
+ * 特定干支組合
+ */
+const DEXIU = {
+  寅午戌月: { 干: '丙', 支: '丁' },
+  申子辰月: { 干: '壬', 支: '癸' },
+  亥卯未月: { 干: '甲', 支: '乙' },
+  巳酉丑月: { 干: '庚', 支: '辛' },
+};
+
+/**
+ * 歲破查詢表
+ * 年支的對沖地支
+ */
+const SUIPO: Record<string, string> = {
+  子: '午',
+  丑: '未',
+  寅: '申',
+  卯: '酉',
+  辰: '戌',
+  巳: '亥',
+  午: '子',
+  未: '丑',
+  申: '寅',
+  酉: '卯',
+  戌: '辰',
+  亥: '巳',
+};
+
+/**
+ * 喪門查詢表
+ * 以年支查詢
+ */
+const SANGMEN: Record<string, string> = {
+  子: '寅',
+  丑: '卯',
+  寅: '辰',
+  卯: '巳',
+  辰: '午',
+  巳: '未',
+  午: '申',
+  未: '酉',
+  申: '戌',
+  酉: '亥',
+  戌: '子',
+  亥: '丑',
+};
+
+/**
+ * 披麻查詢表
+ * 以年支查詢
+ */
+const PIMA: Record<string, string> = {
+  子: '亥',
+  丑: '子',
+  寅: '丑',
+  卯: '寅',
+  辰: '卯',
+  巳: '辰',
+  午: '巳',
+  未: '午',
+  申: '未',
+  酉: '申',
+  戌: '酉',
+  亥: '戌',
+};
+
+/**
+ * 白虎查詢表
+ * 以年支查詢
+ */
+const BAIHU: Record<string, string> = {
+  子: '申',
+  丑: '酉',
+  寅: '戌',
+  卯: '亥',
+  辰: '子',
+  巳: '丑',
+  午: '寅',
+  未: '卯',
+  申: '辰',
+  酉: '巳',
+  戌: '午',
+  亥: '未',
+};
+
+/**
+ * 官符查詢表
+ * 以年支查詢
+ */
+const GUANFU: Record<string, string> = {
+  子: '卯',
+  丑: '辰',
+  寅: '巳',
+  卯: '午',
+  辰: '未',
+  巳: '申',
+  午: '酉',
+  未: '戌',
+  申: '亥',
+  酉: '子',
+  戌: '丑',
+  亥: '寅',
+};
+
+/**
+ * 五鬼查詢表
+ * 以年支查詢
+ */
+const WUGUI: Record<string, string> = {
+  子: '辰',
+  丑: '巳',
+  寅: '午',
+  卯: '未',
+  辰: '申',
+  巳: '酉',
+  午: '戌',
+  未: '亥',
+  申: '子',
+  酉: '丑',
+  戌: '寅',
+  亥: '卯',
+};
+
+/**
+ * 死符查詢表
+ * 以年支查詢
+ */
+const SIFU: Record<string, string> = {
+  子: '巳',
+  丑: '午',
+  寅: '未',
+  卯: '申',
+  辰: '酉',
+  巳: '戌',
+  午: '亥',
+  未: '子',
+  申: '丑',
+  酉: '寅',
+  戌: '卯',
+  亥: '辰',
+};
+
+/**
+ * 歲德查詢表
+ * 以年干查詢
+ */
+const SUIDE: Record<string, string> = {
+  甲: '艮',
+  乙: '坤',
+  丙: '巽',
+  丁: '離',
+  戊: '坤',
+  己: '坎',
+  庚: '乾',
+  辛: '兌',
+  壬: '艮',
+  癸: '離',
+};
+
+/**
+ * 龍德查詢表
+ * 以月支查詢
+ */
+const LONGDE: Record<string, string> = {
+  寅: '亥',
+  卯: '子',
+  辰: '丑',
+  巳: '寅',
+  午: '卯',
+  未: '辰',
+  申: '巳',
+  酉: '午',
+  戌: '未',
+  亥: '申',
+  子: '酉',
+  丑: '戌',
+};
+
+/**
+ * 孤鸞煞查詢表
+ * 特定日柱組合
+ */
+const GULUAN: string[] = [
+  '乙巳',
+  '丁巳',
+  '辛亥',
+  '戊申',
+  '壬寅',
+  '戊午',
+  '壬子',
+  '丙午',
+  '丙子',
+];
+
+/**
+ * 四廢查詢表
+ * 特定季節日柱組合
+ */
+const SIFEI = {
+  春: ['庚申', '辛酉'], // 春季金無氣
+  夏: ['壬子', '癸亥'], // 夏季水無氣
+  秋: ['甲寅', '乙卯'], // 秋季木無氣
+  冬: ['丙午', '丁巳'], // 冬季火無氣
+};
+
+/**
+ * 天元坐煞查詢表
+ * 特定日柱組合
+ */
+const TIANYUAN_ZUOSHA: string[] = [
+  '甲申',
+  '乙酉',
+  '丙子',
+  '丁亥',
+  '戊寅',
+  '己卯',
+  '庚午',
+  '辛巳',
+  '壬申',
+  '癸酉',
+];
+
+/**
+ * 金神查詢表
+ * 特定時柱組合
+ */
+const JINSHEN: string[] = ['乙丑', '己巳', '癸酉'];
+
+/**
+ * 三刑查詢
+ * 地支刑關係
+ */
+const SANXING = {
+  寅巳申: ['寅', '巳', '申'], // 寅巳申三刑（恃勢之刑）
+  丑戌未: ['丑', '戌', '未'], // 丑戌未三刑（無恩之刑）
+  子卯: ['子', '卯'], // 子卯相刑（無禮之刑）
+};
+
+/**
+ * 自刑地支
+ */
+const ZIXING: string[] = ['辰', '午', '酉', '亥'];
+
+/**
+ * 六害查詢表
+ * 地支相害關係
+ */
+const LIUHAI: Record<string, string> = {
+  子: '未',
+  丑: '午',
+  寅: '巳',
+  卯: '辰',
+  申: '亥',
+  酉: '戌',
+  未: '子',
+  午: '丑',
+  巳: '寅',
+  辰: '卯',
+  亥: '申',
+  戌: '酉',
+};
+
+/**
+ * 貫索查詢表
+ * 以年支查詢
+ */
+const GUANSUO: Record<string, string> = {
+  子: '丑',
+  丑: '寅',
+  寅: '卯',
+  卯: '辰',
+  辰: '巳',
+  巳: '午',
+  午: '未',
+  未: '申',
+  申: '酉',
+  酉: '戌',
+  戌: '亥',
+  亥: '子',
+};
+
+/**
+ * 飛廉查詢表
+ * 以年支查詢
+ */
+const FEILIAN: Record<string, string> = {
+  子: '酉',
+  丑: '戌',
+  寅: '亥',
+  卯: '子',
+  辰: '丑',
+  巳: '寅',
+  午: '卯',
+  未: '辰',
+  申: '巳',
+  酉: '午',
+  戌: '未',
+  亥: '申',
+};
+
+/**
+ * 羅睺查詢表
+ * 以年支查詢
+ */
+const LUOHOU: Record<string, string> = {
+  子: '巳',
+  丑: '午',
+  寅: '未',
+  卯: '申',
+  辰: '酉',
+  巳: '戌',
+  午: '亥',
+  未: '子',
+  申: '丑',
+  酉: '寅',
+  戌: '卯',
+  亥: '辰',
+};
+
+/**
+ * 計都查詢表
+ * 以年支查詢
+ */
+const JIDU: Record<string, string> = {
+  子: '亥',
+  丑: '子',
+  寅: '丑',
+  卯: '寅',
+  辰: '卯',
+  巳: '辰',
+  午: '巳',
+  未: '午',
+  申: '未',
+  酉: '申',
+  戌: '酉',
+  亥: '戌',
+};
+
+/**
+ * 天哭查詢表
+ * 以年支查詢
+ */
+const TIANKU: Record<string, string> = {
+  子: '戌',
+  丑: '亥',
+  寅: '子',
+  卯: '丑',
+  辰: '寅',
+  巳: '卯',
+  午: '辰',
+  未: '巳',
+  申: '午',
+  酉: '未',
+  戌: '申',
+  亥: '酉',
+};
+
+/**
+ * 天虛查詢表
+ * 以年支查詢
+ */
+const TIANXU: Record<string, string> = {
+  子: '未',
+  丑: '申',
+  寅: '酉',
+  卯: '戌',
+  辰: '亥',
+  巳: '子',
+  午: '丑',
+  未: '寅',
+  申: '卯',
+  酉: '辰',
+  戌: '巳',
+  亥: '午',
+};
+
+/**
+ * 紫微查詢表
+ * 以年支查詢
+ */
+const ZIWEI: Record<string, string> = {
+  子: '卯',
+  丑: '寅',
+  寅: '丑',
+  卯: '子',
+  辰: '亥',
+  巳: '戌',
+  午: '酉',
+  未: '申',
+  申: '未',
+  酉: '午',
+  戌: '巳',
+  亥: '辰',
+};
+
+/**
+ * 鳳閣查詢表
+ * 以月支查詢
+ */
+const FENGGE: Record<string, string> = {
+  寅: '巳',
+  卯: '午',
+  辰: '未',
+  巳: '申',
+  午: '酉',
+  未: '戌',
+  申: '亥',
+  酉: '子',
+  戌: '丑',
+  亥: '寅',
+  子: '卯',
+  丑: '辰',
+};
+
+/**
+ * 月將查詢表
+ * 以月支查詢
+ */
+const YUEJIANG: Record<string, string> = {
+  寅: '酉',
+  卯: '戌',
+  辰: '亥',
+  巳: '子',
+  午: '丑',
+  未: '寅',
+  申: '卯',
+  酉: '辰',
+  戌: '巳',
+  亥: '午',
+  子: '未',
+  丑: '申',
+};
+
+/**
+ * 豹尾查詢表
+ * 歲破後兩位
+ */
+const BAOWEI: Record<string, string> = {
+  子: '申',
+  丑: '酉',
+  寅: '戌',
+  卯: '亥',
+  辰: '子',
+  巳: '丑',
+  午: '寅',
+  未: '卯',
+  申: '辰',
+  酉: '巳',
+  戌: '午',
+  亥: '未',
+};
+
+/**
+ * 黃幡查詢表
+ * 以年支查詢
+ */
+const HUANGFAN: Record<string, string> = {
+  子: '未',
+  丑: '申',
+  寅: '酉',
+  卯: '戌',
+  辰: '亥',
+  巳: '子',
+  午: '丑',
+  未: '寅',
+  申: '卯',
+  酉: '辰',
+  戌: '巳',
+  亥: '午',
+};
+
+/**
+ * 將軍箭查詢表
+ * 以年支和時辰查詢（小兒關煞）
+ */
+const JIANGJUNJIAN = {
+  春: ['酉', '戌', '未'], // 春季生人忌酉戌未時
+  夏: ['子', '午', '卯'], // 夏季生人忌子午卯時
+  秋: ['卯', '辰', '丑'], // 秋季生人忌卯辰丑時
+  冬: ['午', '酉', '戌'], // 冬季生人忌午酉戌時
+};
+
+/**
+ * 鐵掃帚查詢表
+ * 以月支查詢，男女不同
+ */
+const TIESAZHOU_MALE: Record<string, string> = {
+  子: '申',
+  丑: '酉',
+  寅: '戌',
+  卯: '亥',
+  辰: '子',
+  巳: '丑',
+  午: '寅',
+  未: '卯',
+  申: '辰',
+  酉: '巳',
+  戌: '午',
+  亥: '未',
+};
+
+const TIESAZHOU_FEMALE: Record<string, string> = {
+  子: '辰',
+  丑: '巳',
+  寅: '午',
+  卯: '未',
+  辰: '申',
+  巳: '酉',
+  午: '戌',
+  未: '亥',
+  申: '子',
+  酉: '丑',
+  戌: '寅',
+  亥: '卯',
+};
+
+/**
+ * 九醜查詢表
+ * 特定日柱組合
+ */
+const JIUCHOU: string[] = [
+  '庚戌',
+  '辛亥',
+  '壬寅',
+  '癸巳',
+  '丁丑',
+  '戊子',
+  '己卯',
+];
+
+/**
+ * 闌干查詢表
+ * 以年支查詢
+ */
+const LANGAN: Record<string, string> = {
+  子: '卯',
+  丑: '辰',
+  寅: '巳',
+  卯: '午',
+  辰: '未',
+  巳: '申',
+  午: '酉',
+  未: '戌',
+  申: '亥',
+  酉: '子',
+  戌: '丑',
+  亥: '寅',
+};
+
+/**
+ * 暴敗查詢表
+ * 以日柱查詢
+ */
+const BAOBAI: string[] = [
+  '甲辰',
+  '乙巳',
+  '丙申',
+  '丁亥',
+  '戊戌',
+  '己丑',
+  '庚辰',
+  '辛巳',
+  '壬申',
+  '癸亥',
+];
+
+/**
+ * 浮沉查詢表
+ * 以年支查詢
+ */
+const FUCHEN: Record<string, string> = {
+  子: '巳',
+  丑: '午',
+  寅: '未',
+  卯: '申',
+  辰: '酉',
+  巳: '戌',
+  午: '亥',
+  未: '子',
+  申: '丑',
+  酉: '寅',
+  戌: '卯',
+  亥: '辰',
+};
+
+/**
+ * 指背查詢表
+ * 以年支查詢
+ */
+const ZHIBEI: Record<string, string> = {
+  子: '巳',
+  丑: '午',
+  寅: '未',
+  卯: '申',
+  辰: '酉',
+  巳: '戌',
+  午: '亥',
+  未: '子',
+  申: '丑',
+  酉: '寅',
+  戌: '卯',
+  亥: '辰',
+};
+
+/**
+ * 捲舌查詢表
+ * 以年支查詢
+ */
+const JUANSHE: Record<string, string> = {
+  子: '戌',
+  丑: '亥',
+  寅: '子',
+  卯: '丑',
+  辰: '寅',
+  巳: '卯',
+  午: '辰',
+  未: '巳',
+  申: '午',
+  酉: '未',
+  戌: '申',
+  亥: '酉',
+};
+
+/**
+ * 伏屍查詢表
+ * 以年支查詢
+ */
+const FUSHI: Record<string, string> = {
+  子: '亥',
+  丑: '子',
+  寅: '丑',
+  卯: '寅',
+  辰: '卯',
+  巳: '辰',
+  午: '巳',
+  未: '午',
+  申: '未',
+  酉: '申',
+  戌: '酉',
+  亥: '戌',
+};
+
+/**
+ * 吞陷煞查詢表
+ * 以日干查詢
+ */
+const TUNXIAN: Record<string, string> = {
+  甲: '辰',
+  乙: '辰',
+  丙: '戌',
+  丁: '戌',
+  戊: '辰',
+  己: '辰',
+  庚: '戌',
+  辛: '戌',
+  壬: '辰',
+  癸: '辰',
+};
+
+/**
+ * 破碎煞查詢表
+ * 以年支查詢
+ */
+const POSUI: Record<string, string> = {
+  子: '巳',
+  丑: '辰',
+  寅: '酉',
+  卯: '子',
+  辰: '酉',
+  巳: '申',
+  午: '酉',
+  未: '戌',
+  申: '巳',
+  酉: '子',
+  戌: '未',
+  亥: '寅',
+};
+
+/**
+ * 往亡查詢表
+ * 以日支查詢
+ */
+const WANGWANG: Record<string, string> = {
+  子: '巳',
+  丑: '午',
+  寅: '未',
+  卯: '申',
+  辰: '酉',
+  巳: '戌',
+  午: '亥',
+  未: '子',
+  申: '丑',
+  酉: '寅',
+  戌: '卯',
+  亥: '辰',
+};
+
+/**
+ * 歸忌查詢表
+ * 以日支查詢
+ */
+const GUIJI: Record<string, string> = {
+  子: '未',
+  丑: '申',
+  寅: '酉',
+  卯: '戌',
+  辰: '亥',
+  巳: '子',
+  午: '丑',
+  未: '寅',
+  申: '卯',
+  酉: '辰',
+  戌: '巳',
+  亥: '午',
+};
+
+/**
+ * 天火查詢表
+ * 以日干查詢
+ */
+const TIANHUO: Record<string, string> = {
+  甲: '子',
+  乙: '卯',
+  丙: '午',
+  丁: '酉',
+  戊: '子',
+  己: '卯',
+  庚: '午',
+  辛: '酉',
+  壬: '子',
+  癸: '卯',
+};
+
+/**
+ * 劍鋒煞查詢表
+ * 以日干查詢
+ */
+const JIANFENG: Record<string, string> = {
+  甲: '酉',
+  乙: '戌',
+  丙: '子',
+  丁: '丑',
+  戊: '卯',
+  己: '辰',
+  庚: '午',
+  辛: '未',
+  壬: '酉',
+  癸: '戌',
+};
+
+/**
+ * 懸針煞查詢表
+ * 特定日柱組合
+ */
+const XUANZHEN: string[] = [
+  '甲寅',
+  '乙卯',
+  '丙午',
+  '丁巳',
+  '戊戌',
+  '己未',
+  '庚申',
+  '辛酉',
+  '壬子',
+  '癸亥',
+];
+
+/**
+ * 平頭煞查詢表
+ * 特定日柱組合（干支五行相剋）
+ */
+const PINGTOU: string[] = [
+  '甲申',
+  '甲戌',
+  '乙酉',
+  '乙亥',
+  '丙子',
+  '丙寅',
+  '丁丑',
+  '丁卯',
+  '戊辰',
+  '戊午',
+  '己巳',
+  '己未',
+  '庚午',
+  '庚申',
+  '辛未',
+  '辛酉',
+  '壬申',
+  '壬戌',
+  '癸酉',
+  '癸亥',
+];
+
+/**
+ * 六厄查詢表
+ * 以年支查詢
+ */
+const LIUE: Record<string, string> = {
+  子: '卯',
+  丑: '辰',
+  寅: '巳',
+  卯: '午',
+  辰: '未',
+  巳: '申',
+  午: '酉',
+  未: '戌',
+  申: '亥',
+  酉: '子',
+  戌: '丑',
+  亥: '寅',
+};
+
+/**
+ * 歲刑查詢表
+ * 以年支查詢
+ */
+const SUIXING: Record<string, string[]> = {
+  子: ['卯'],
+  丑: ['戌', '未'],
+  寅: ['巳', '申'],
+  卯: ['子'],
+  辰: ['辰'],
+  巳: ['寅', '申'],
+  午: ['午'],
+  未: ['丑', '戌'],
+  申: ['寅', '巳'],
+  酉: ['酉'],
+  戌: ['丑', '未'],
+  亥: ['亥'],
+};
+
+/**
+ * 博士十二神查詢表
+ * 以月支起，順行至日支
+ */
+const BOSHI_12: string[] = [
+  '博士',
+  '力士',
+  '青龍',
+  '小耗',
+  '將軍',
+  '奏書',
+  '飛廉',
+  '喜神',
+  '病符',
+  '大耗',
+  '伏兵',
+  '官符',
+];
+
+/**
+ * 牆內桃花：日支為桃花
+ */
+const QIANGNEII_TAOHUA = (dayBranch: string, taohuaBranch: string): boolean => {
+  return dayBranch === taohuaBranch;
+};
+
+/**
+ * 牆外桃花：時支為桃花
+ */
+const QIANGWAI_TAOHUA = (hourBranch: string, taohuaBranch: string): boolean => {
+  return hourBranch === taohuaBranch;
+};
+
+/**
+ * 遍野桃花：月支為桃花
+ */
+const BIANYE_TAOHUA = (
+  monthBranch: string,
+  taohuaBranch: string
+): boolean => {
+  return monthBranch === taohuaBranch;
+};
+
+/**
+ * 倒插桃花：年支為桃花
+ */
+const DAOCHA_TAOHUA = (yearBranch: string, taohuaBranch: string): boolean => {
+  return yearBranch === taohuaBranch;
+};
+
 // 有效的天干和地支常量（用於輸入驗證）
 const VALID_STEMS = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
 const VALID_BRANCHES = [
@@ -1534,6 +2452,609 @@ export function calculateBaZiShenSha(
     }
   });
   addShenSha(yuanchenPositions, '元辰', '凶', '主耗散破敗、諸事不順、須謹慎理財');
+
+  // 48. 玉堂貴人（以日干查）
+  addShenSha(
+    findBranchPositions(YUTANG[dayStem]),
+    '玉堂貴人',
+    '吉',
+    '主福祿雙全、名利雙收、有貴人提攜'
+  );
+
+  // 49. 文曲貴人（以日干查）
+  addShenSha(
+    findBranchPositions(WENQU[dayStem]),
+    '文曲貴人',
+    '吉',
+    '主文采出眾、才思敏捷、利於科舉考試'
+  );
+
+  // 50. 建祿（祿神在月柱）
+  const lushenTarget = LUSHEN[dayStem];
+  if (lushenTarget && monthBranch === lushenTarget) {
+    addShenSha(['月柱'], '建祿', '吉', '主自立成家、財祿豐盈、事業有成');
+  }
+
+  // 51. 歸祿（祿神在時柱）
+  if (lushenTarget && hourBranch === lushenTarget) {
+    addShenSha(['時柱'], '歸祿', '吉', '主晚年富貴、子孫賢孝、福祿歸身');
+  }
+
+  // 52. 專祿（祿神在日支）
+  if (lushenTarget && dayBranch === lushenTarget) {
+    addShenSha(['日柱'], '專祿', '吉', '主專心事業、財祿專一、不宜投機');
+  }
+
+  // 53. 歲破（年支對沖）
+  const suipoTarget = SUIPO[yearBranch];
+  if (suipoTarget) {
+    const suipoPositions: string[] = [];
+    allBranches.forEach(({ branch, position }) => {
+      if (branch === suipoTarget && position !== '年柱') {
+        suipoPositions.push(position);
+      }
+    });
+    addShenSha(suipoPositions, '歲破', '凶', '主破耗損財、諸事不順、宜守不宜攻');
+  }
+
+  // 54. 大耗（歲破後一位）
+  const dahaoPos = findBranchPositions(
+    VALID_BRANCHES[
+      (VALID_BRANCHES.indexOf(suipoTarget) + 1) % VALID_BRANCHES.length
+    ]
+  );
+  if (dahaoPos.length > 0) {
+    addShenSha(dahaoPos, '大耗', '凶', '主財物耗損、破財敗業、須防盜竊');
+  }
+
+  // 55. 小耗（歲破前一位）
+  const xiaohaoPos = findBranchPositions(
+    VALID_BRANCHES[
+      (VALID_BRANCHES.indexOf(suipoTarget) + 11) % VALID_BRANCHES.length
+    ]
+  );
+  if (xiaohaoPos.length > 0) {
+    addShenSha(xiaohaoPos, '小耗', '凶', '主小破財、暗中耗損、宜節儉');
+  }
+
+  // 56. 喪門（以年支查）
+  addShenSha(
+    findBranchPositions(SANGMEN[yearBranch]),
+    '喪門',
+    '凶',
+    '主喪服之事、須防孝服、家宅不寧'
+  );
+
+  // 57. 披麻（以年支查）
+  addShenSha(
+    findBranchPositions(PIMA[yearBranch]),
+    '披麻',
+    '凶',
+    '主麻煩纏身、須防孝服、憂患多見'
+  );
+
+  // 58. 白虎（以年支查）
+  addShenSha(
+    findBranchPositions(BAIHU[yearBranch]),
+    '白虎',
+    '凶',
+    '主血光意外、須防刀傷車禍、宜謹慎行事'
+  );
+
+  // 59. 官符（以年支查）
+  addShenSha(
+    findBranchPositions(GUANFU[yearBranch]),
+    '官符',
+    '凶',
+    '主官非訴訟、須防口舌是非、避免爭執'
+  );
+
+  // 60. 五鬼（以年支查）
+  addShenSha(
+    findBranchPositions(WUGUI[yearBranch]),
+    '五鬼',
+    '凶',
+    '主小人暗害、是非口舌、須防陰謀詭計'
+  );
+
+  // 61. 死符（以年支查）
+  addShenSha(
+    findBranchPositions(SIFU[yearBranch]),
+    '死符',
+    '凶',
+    '主疾病纏身、健康不佳、須注意保養'
+  );
+
+  // 62. 龍德（以月支查）
+  addShenSha(
+    findBranchPositions(LONGDE[monthBranch]),
+    '龍德',
+    '吉',
+    '主逢凶化吉、龍德庇佑、遇難呈祥'
+  );
+
+  // 63. 孤鸞煞（特定日柱）
+  if (GULUAN.includes(dayPillarStr)) {
+    addShenSha(['日柱'], '孤鸞煞', '凶', '主婚姻不順、夫妻易分離、宜晚婚');
+  }
+
+  // 64. 四廢（特定季節日柱）
+  const seasonMap: Record<string, '春' | '夏' | '秋' | '冬'> = {
+    寅: '春',
+    卯: '春',
+    辰: '春',
+    巳: '夏',
+    午: '夏',
+    未: '夏',
+    申: '秋',
+    酉: '秋',
+    戌: '秋',
+    亥: '冬',
+    子: '冬',
+    丑: '冬',
+  };
+  const season = seasonMap[monthBranch];
+  if (season && SIFEI[season].includes(dayPillarStr)) {
+    addShenSha(['日柱'], '四廢', '凶', '主力不從心、事業多阻、難有成就');
+  }
+
+  // 65. 天元坐煞（特定日柱）
+  if (TIANYUAN_ZUOSHA.includes(dayPillarStr)) {
+    addShenSha(['日柱'], '天元坐煞', '凶', '主性格急躁、易有衝突、須防意外');
+  }
+
+  // 66. 金神（特定時柱）
+  const hourPillarStr = hourPillar.heavenlyStem + hourPillar.earthlyBranch;
+  if (JINSHEN.includes(hourPillarStr)) {
+    addShenSha(['時柱'], '金神', '中', '主性格剛毅、有煞氣、須見火制化為吉');
+  }
+
+  // 67. 三刑
+  // 檢查寅巳申三刑
+  const yinSiShenCount = allBranches.filter(({ branch }) =>
+    SANXING.寅巳申.includes(branch)
+  ).length;
+  if (yinSiShenCount >= 3) {
+    const positions = allBranches
+      .filter(({ branch }) => SANXING.寅巳申.includes(branch))
+      .map(({ position }) => position);
+    addShenSha(positions, '三刑', '凶', '主刑傷災禍、須防意外傷害、宜謹慎行事');
+  }
+
+  // 檢查丑戌未三刑
+  const chouXuWeiCount = allBranches.filter(({ branch }) =>
+    SANXING.丑戌未.includes(branch)
+  ).length;
+  if (chouXuWeiCount >= 3) {
+    const positions = allBranches
+      .filter(({ branch }) => SANXING.丑戌未.includes(branch))
+      .map(({ position }) => position);
+    addShenSha(positions, '三刑', '凶', '主刑傷災禍、六親不和、宜修養德行');
+  }
+
+  // 檢查子卯相刑
+  const ziMaoPositions: string[] = [];
+  allBranches.forEach(({ branch, position }) => {
+    if (SANXING.子卯.includes(branch)) {
+      ziMaoPositions.push(position);
+    }
+  });
+  if (ziMaoPositions.length >= 2) {
+    addShenSha(ziMaoPositions, '子卯相刑', '凶', '主無禮之刑、易有口舌是非');
+  }
+
+  // 68. 自刑
+  const zixingPositions: string[] = [];
+  allBranches.forEach(({ branch, position }) => {
+    if (ZIXING.includes(branch)) {
+      // 檢查是否有重複的自刑地支
+      const count = allBranches.filter((b) => b.branch === branch).length;
+      if (count >= 2 && !zixingPositions.includes(position)) {
+        zixingPositions.push(position);
+      }
+    }
+  });
+  if (zixingPositions.length > 0) {
+    addShenSha(zixingPositions, '自刑', '凶', '主自我刑傷、心性不定、易鑽牛角尖');
+  }
+
+  // 69. 六害
+  const liuhaiPositions: string[] = [];
+  allBranches.forEach(({ branch: branch1, position: position1 }) => {
+    const harmBranch = LIUHAI[branch1];
+    allBranches.forEach(({ branch: branch2, position: position2 }) => {
+      if (
+        branch2 === harmBranch &&
+        position1 !== position2 &&
+        !liuhaiPositions.includes(position1)
+      ) {
+        liuhaiPositions.push(position1);
+      }
+    });
+  });
+  if (liuhaiPositions.length > 0) {
+    addShenSha(liuhaiPositions, '六害', '凶', '主六親不和、易有害人之事、防小人');
+  }
+
+  // 70. 貫索（以年支查）
+  addShenSha(
+    findBranchPositions(GUANSUO[yearBranch]),
+    '貫索',
+    '凶',
+    '主牢獄之災、官非纏身、須防訴訟'
+  );
+
+  // 71. 飛廉（以年支查）
+  addShenSha(
+    findBranchPositions(FEILIAN[yearBranch]),
+    '飛廉',
+    '凶',
+    '主奔波勞碌、東奔西走、難得安寧'
+  );
+
+  // 72. 羅睺（以年支查）
+  addShenSha(
+    findBranchPositions(LUOHOU[yearBranch]),
+    '羅睺',
+    '凶',
+    '主陰謀詭計、暗中破害、須防小人'
+  );
+
+  // 73. 計都（以年支查）
+  addShenSha(
+    findBranchPositions(JIDU[yearBranch]),
+    '計都',
+    '凶',
+    '主計謀多端、心機深沉、須防陰謀'
+  );
+
+  // 74. 天哭（以年支查）
+  addShenSha(
+    findBranchPositions(TIANKU[yearBranch]),
+    '天哭',
+    '凶',
+    '主悲傷哭泣、憂鬱多愁、須防憂患'
+  );
+
+  // 75. 天虛（以年支查）
+  addShenSha(
+    findBranchPositions(TIANXU[yearBranch]),
+    '天虛',
+    '凶',
+    '主虛耗不實、事多落空、難有實效'
+  );
+
+  // 76. 紫微（以年支查）
+  addShenSha(
+    findBranchPositions(ZIWEI[yearBranch]),
+    '紫微',
+    '吉',
+    '主尊貴顯赫、權威在握、利於仕途'
+  );
+
+  // 77. 鳳閣（以月支查）
+  addShenSha(
+    findBranchPositions(FENGGE[monthBranch]),
+    '鳳閣',
+    '吉',
+    '主文采風流、氣質優雅、利於文職'
+  );
+
+  // 78. 月將（以月支查）
+  addShenSha(
+    findBranchPositions(YUEJIANG[monthBranch]),
+    '月將',
+    '吉',
+    '主領導統御、權威在握、利於管理'
+  );
+
+  // 79. 豹尾（歲破後兩位）
+  addShenSha(
+    findBranchPositions(BAOWEI[yearBranch]),
+    '豹尾',
+    '凶',
+    '主凶惡暴戾、易有血光、須防意外'
+  );
+
+  // 80. 黃幡（以年支查）
+  addShenSha(
+    findBranchPositions(HUANGFAN[yearBranch]),
+    '黃幡',
+    '凶',
+    '主喪服之事、須防孝服、家宅不安'
+  );
+
+  // 81. 飛刃（羊刃對沖）
+  const yangrenTarget = YANGREN[dayStem];
+  if (yangrenTarget) {
+    const feirenTarget = SUIPO[yangrenTarget];
+    if (feirenTarget) {
+      addShenSha(
+        findBranchPositions(feirenTarget),
+        '飛刃',
+        '凶',
+        '主血光意外、須防刀傷手術、宜謹慎'
+      );
+    }
+  }
+
+  // 82. 伏吟（同柱重複）
+  const fuyinPositions: string[] = [];
+  const branchCounts: Record<string, { count: number; positions: string[] }> =
+    {};
+  allBranches.forEach(({ branch, position }) => {
+    if (!branchCounts[branch]) {
+      branchCounts[branch] = { count: 0, positions: [] };
+    }
+    branchCounts[branch].count++;
+    branchCounts[branch].positions.push(position);
+  });
+  Object.entries(branchCounts).forEach(([branch, data]) => {
+    if (data.count >= 2) {
+      fuyinPositions.push(...data.positions);
+    }
+  });
+  if (fuyinPositions.length > 0) {
+    addShenSha(
+      [...new Set(fuyinPositions)],
+      '伏吟',
+      '凶',
+      '主重複不順、事多反覆、難有進展'
+    );
+  }
+
+  // 83. 反吟（天克地沖）
+  const fanyinPositions: string[] = [];
+  for (let i = 0; i < allBranches.length; i++) {
+    for (let j = i + 1; j < allBranches.length; j++) {
+      const branch1 = allBranches[i].branch;
+      const branch2 = allBranches[j].branch;
+      if (SUIPO[branch1] === branch2) {
+        fanyinPositions.push(allBranches[i].position);
+        fanyinPositions.push(allBranches[j].position);
+      }
+    }
+  }
+  if (fanyinPositions.length > 0) {
+    addShenSha(
+      [...new Set(fanyinPositions)],
+      '反吟',
+      '凶',
+      '主變動不安、事多反覆、宜靜不宜動'
+    );
+  }
+
+  // 84. 鐵掃帚（以月支查，需要性別資訊）
+  // 注意：此處無法獲取性別資訊，需要在調用時傳入或從其他地方獲取
+  // 暫時使用男命規則
+  addShenSha(
+    findBranchPositions(TIESAZHOU_MALE[monthBranch]),
+    '鐵掃帚',
+    '凶',
+    '主破財敗業、錢財難聚、宜節儉'
+  );
+
+  // 85. 截路空亡（四大空亡之一）
+  const jieluKongwangPositions: string[] = [];
+  allBranches.forEach(({ branch, position }) => {
+    // 甲子旬戌亥空，在時柱為截路空亡
+    if (position === '時柱') {
+      if (xunShou) {
+        const kongwangBranches = KONGWANG[xunShou];
+        if (kongwangBranches && kongwangBranches.includes(branch)) {
+          jieluKongwangPositions.push(position);
+        }
+      }
+    }
+  });
+  if (jieluKongwangPositions.length > 0) {
+    addShenSha(jieluKongwangPositions, '截路空亡', '凶', '主前路受阻、難有發展');
+  }
+
+  // 86. 九醜（特定日柱）
+  if (JIUCHOU.includes(dayPillarStr)) {
+    addShenSha(['日柱'], '九醜', '凶', '主容貌不佳、氣質欠佳、宜修養德行');
+  }
+
+  // 87. 闌干（以年支查）
+  addShenSha(
+    findBranchPositions(LANGAN[yearBranch]),
+    '闌干',
+    '凶',
+    '主阻隔不通、事多障礙、難有突破'
+  );
+
+  // 88. 暴敗（特定日柱）
+  if (BAOBAI.includes(dayPillarStr)) {
+    addShenSha(['日柱'], '暴敗', '凶', '主突然敗落、錢財難守、宜謹慎');
+  }
+
+  // 89. 浮沉（以年支查）
+  addShenSha(
+    findBranchPositions(FUCHEN[yearBranch]),
+    '浮沉',
+    '凶',
+    '主浮沉不定、事業起伏、難有穩定'
+  );
+
+  // 90. 指背（以年支查）
+  addShenSha(
+    findBranchPositions(ZHIBEI[yearBranch]),
+    '指背',
+    '凶',
+    '主背後是非、易遭誹謗、須防小人'
+  );
+
+  // 91. 捲舌（以年支查）
+  addShenSha(
+    findBranchPositions(JUANSHE[yearBranch]),
+    '捲舌',
+    '凶',
+    '主口舌是非、言語不慎、易惹爭端'
+  );
+
+  // 92. 伏屍（以年支查）
+  addShenSha(
+    findBranchPositions(FUSHI[yearBranch]),
+    '伏屍',
+    '凶',
+    '主疾病纏身、健康不佳、須注意保養'
+  );
+
+  // 93. 吞陷煞（以日干查）
+  addShenSha(
+    findBranchPositions(TUNXIAN[dayStem]),
+    '吞陷煞',
+    '凶',
+    '主陷入困境、難以自拔、須謹慎行事'
+  );
+
+  // 94. 破碎煞（以年支查）
+  addShenSha(
+    findBranchPositions(POSUI[yearBranch]),
+    '破碎煞',
+    '凶',
+    '主破財損物、器物易損、宜小心保管'
+  );
+
+  // 95. 往亡（以日支查）
+  addShenSha(
+    findBranchPositions(WANGWANG[dayBranch]),
+    '往亡',
+    '凶',
+    '主出行不利、易有意外、宜減少遠行'
+  );
+
+  // 96. 歸忌（以日支查）
+  addShenSha(
+    findBranchPositions(GUIJI[dayBranch]),
+    '歸忌',
+    '凶',
+    '主回歸不利、返程多阻、宜慎重選擇'
+  );
+
+  // 97. 天火（以日干查）
+  addShenSha(
+    findBranchPositions(TIANHUO[dayStem]),
+    '天火',
+    '凶',
+    '主火災之患、須防火燭、注意用火安全'
+  );
+
+  // 98. 劍鋒煞（以日干查）
+  addShenSha(
+    findBranchPositions(JIANFENG[dayStem]),
+    '劍鋒煞',
+    '凶',
+    '主刀劍之災、須防意外傷害、宜謹慎'
+  );
+
+  // 99. 懸針煞（特定日柱）
+  if (XUANZHEN.includes(dayPillarStr)) {
+    addShenSha(['日柱'], '懸針煞', '凶', '主性格執著、易鑽牛角尖、須防固執');
+  }
+
+  // 100. 平頭煞（特定日柱）
+  if (PINGTOU.includes(dayPillarStr)) {
+    addShenSha(['日柱'], '平頭煞', '凶', '主干支相剋、內外不和、多有矛盾');
+  }
+
+  // 101. 六厄（以年支查）
+  addShenSha(
+    findBranchPositions(LIUE[yearBranch]),
+    '六厄',
+    '凶',
+    '主災厄連連、困難重重、須謹慎應對'
+  );
+
+  // 102. 歲刑（以年支查）
+  const suixingTargets = SUIXING[yearBranch];
+  if (suixingTargets) {
+    const suixingPositions: string[] = [];
+    allBranches.forEach(({ branch, position }) => {
+      if (suixingTargets.includes(branch) && position !== '年柱') {
+        suixingPositions.push(position);
+      }
+    });
+    addShenSha(suixingPositions, '歲刑', '凶', '主刑傷災禍、須防意外、宜謹慎');
+  }
+
+  // 103. 牆內桃花（日支為桃花）
+  const taohuaBranchDay = TAOHUA[dayBranch];
+  if (taohuaBranchDay && QIANGNEII_TAOHUA(dayBranch, taohuaBranchDay)) {
+    addShenSha(['日柱'], '牆內桃花', '中', '主配偶貌美、夫妻恩愛、家庭和睦');
+  }
+
+  // 104. 牆外桃花（時支為桃花）
+  const taohuaBranchYear = TAOHUA[yearBranch];
+  if (taohuaBranchYear && QIANGWAI_TAOHUA(hourBranch, taohuaBranchDay || taohuaBranchYear)) {
+    addShenSha(['時柱'], '牆外桃花', '中', '主外遇之象、須防感情糾葛');
+  }
+
+  // 105. 遍野桃花（月支為桃花）
+  if (
+    (taohuaBranchDay && BIANYE_TAOHUA(monthBranch, taohuaBranchDay)) ||
+    (taohuaBranchYear && BIANYE_TAOHUA(monthBranch, taohuaBranchYear))
+  ) {
+    addShenSha(['月柱'], '遍野桃花', '中', '主風流成性、桃花氾濫、宜自律');
+  }
+
+  // 106. 倒插桃花（年支為桃花）
+  if (taohuaBranchDay && DAOCHA_TAOHUA(yearBranch, taohuaBranchDay)) {
+    addShenSha(
+      ['年柱'],
+      '倒插桃花',
+      '中',
+      '主早年桃花、少年風流、宜注意感情'
+    );
+  }
+
+  // 107. 沐浴咸池（沐浴與桃花同柱）
+  const muyuTarget = MUYU[dayStem];
+  if (muyuTarget && (muyuTarget === taohuaBranchDay || muyuTarget === taohuaBranchYear)) {
+    const muyuTaohuaPos: string[] = [];
+    allBranches.forEach(({ branch, position }) => {
+      if (branch === muyuTarget) {
+        muyuTaohuaPos.push(position);
+      }
+    });
+    addShenSha(
+      muyuTaohuaPos,
+      '沐浴咸池',
+      '中',
+      '主桃花旺盛、異性緣佳、須防感情糾紛'
+    );
+  }
+
+  // 108. 裸體桃花（沐浴在日支或時支）
+  if (muyuTarget && (dayBranch === muyuTarget || hourBranch === muyuTarget)) {
+    const luotiPos: string[] = [];
+    if (dayBranch === muyuTarget) luotiPos.push('日柱');
+    if (hourBranch === muyuTarget) luotiPos.push('時柱');
+    addShenSha(luotiPos, '裸體桃花', '中', '主桃花外露、易招桃色是非');
+  }
+
+  // 109. 滾浪桃花（桃花與驛馬同柱）
+  const yimaTargetDay = YIMA[dayBranch];
+  const yimaTargetYear = YIMA[yearBranch];
+  const gunlangPositions: string[] = [];
+  allBranches.forEach(({ branch, position }) => {
+    if (
+      ((taohuaBranchDay && branch === taohuaBranchDay) ||
+        (taohuaBranchYear && branch === taohuaBranchYear)) &&
+      (branch === yimaTargetDay || branch === yimaTargetYear)
+    ) {
+      gunlangPositions.push(position);
+    }
+  });
+  if (gunlangPositions.length > 0) {
+    addShenSha(
+      gunlangPositions,
+      '滾浪桃花',
+      '中',
+      '主桃花奔波、四處留情、宜自律'
+    );
+  }
 
   // 按吉凶排序：吉神在前，中性次之，凶神在後
   const typeOrder = { 吉: 0, 中: 1, 凶: 2 };
