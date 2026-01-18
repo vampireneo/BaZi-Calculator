@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { BaZiResult as BaZiResultType, Pillar, BaZiShenSha } from '../utils/baziHelper';
 import {
   getFiveElementStrength,
@@ -13,11 +13,45 @@ interface BaZiResultProps {
   result: BaZiResultType;
 }
 
+// 神煞類型顏色配置 - 必須在組件定義前聲明
+const SHENSHA_TYPE_COLORS = {
+  吉: {
+    bg: 'bg-emerald-50',
+    border: 'border-emerald-300',
+    text: 'text-emerald-800',
+    badge: 'bg-emerald-100 border-emerald-300',
+  },
+  中: {
+    bg: 'bg-amber-50',
+    border: 'border-amber-300',
+    text: 'text-amber-800',
+    badge: 'bg-amber-100 border-amber-300',
+  },
+  凶: {
+    bg: 'bg-rose-50',
+    border: 'border-rose-300',
+    text: 'text-rose-800',
+    badge: 'bg-rose-100 border-rose-300',
+  },
+};
+
 // 神煞詳細資料彈出視窗組件
 const ShenShaModal: React.FC<{
   shenSha: BaZiShenSha | null;
   onClose: () => void;
 }> = ({ shenSha, onClose }) => {
+  // 添加 Escape 鍵支持
+  useEffect(() => {
+    if (!shenSha) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [shenSha, onClose]);
+
   if (!shenSha) return null;
 
   const colors = SHENSHA_TYPE_COLORS[shenSha.type];
@@ -26,6 +60,9 @@ const ShenShaModal: React.FC<{
     <div
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="shensha-modal-title"
     >
       <div
         className={`${colors.bg} border-2 ${colors.border} rounded-xl p-6 max-w-md w-full shadow-2xl animate-fade-in`}
@@ -33,7 +70,10 @@ const ShenShaModal: React.FC<{
       >
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h3 className={`text-2xl font-bold ${colors.text} mb-1`}>
+            <h3
+              id="shensha-modal-title"
+              className={`text-2xl font-bold ${colors.text} mb-1`}
+            >
               {shenSha.name}
             </h3>
             <div className="flex items-center gap-2">
@@ -50,6 +90,7 @@ const ShenShaModal: React.FC<{
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
+            aria-label="關閉神煞詳情"
           >
             <svg
               className="w-6 h-6"
@@ -183,9 +224,10 @@ const PillarCard: React.FC<{
                 const colors = SHENSHA_TYPE_COLORS[s.type];
                 return (
                   <button
-                    key={index}
+                    key={`${s.name}-${index}`}
                     onClick={() => onShenShaClick?.(s)}
                     className={`text-xs ${colors.badge} ${colors.text} px-2 py-1 rounded border cursor-pointer hover:scale-110 hover:shadow-md transition-all duration-200`}
+                    aria-label={`查看 ${s.name} 的詳細資料`}
                     title="點擊查看詳情"
                   >
                     {s.name}
@@ -362,28 +404,6 @@ const FiveElementsDisplay: React.FC<{ result: BaZiResultType }> = ({ result }) =
   );
 };
 
-// 神煞類型顏色配置
-const SHENSHA_TYPE_COLORS = {
-  吉: {
-    bg: 'bg-emerald-50',
-    border: 'border-emerald-300',
-    text: 'text-emerald-800',
-    badge: 'bg-emerald-100 border-emerald-300',
-  },
-  中: {
-    bg: 'bg-amber-50',
-    border: 'border-amber-300',
-    text: 'text-amber-800',
-    badge: 'bg-amber-100 border-amber-300',
-  },
-  凶: {
-    bg: 'bg-rose-50',
-    border: 'border-rose-300',
-    text: 'text-rose-800',
-    badge: 'bg-rose-100 border-rose-300',
-  },
-};
-
 const ShenShaDisplay: React.FC<{ shenSha: BaZiShenSha[] }> = ({ shenSha }) => {
   // 分離吉神、中性、凶神
   const auspicious = shenSha.filter((s) => s.type === '吉');
@@ -449,8 +469,11 @@ const ShenShaDisplay: React.FC<{ shenSha: BaZiShenSha[] }> = ({ shenSha }) => {
 export const BaZiResult: React.FC<BaZiResultProps> = ({ result }) => {
   const [selectedShenSha, setSelectedShenSha] = useState<BaZiShenSha | null>(null);
 
-  // 將神煞按照柱位置分組
-  const shenShaByPillar = groupShenShaByPillar(result.shenSha);
+  // 將神煞按照柱位置分組 (使用 useMemo 優化性能)
+  const shenShaByPillar = useMemo(
+    () => groupShenShaByPillar(result.shenSha),
+    [result.shenSha]
+  );
 
   return (
     <div className="w-full max-w-6xl mx-auto mt-12 animate-fade-in">
