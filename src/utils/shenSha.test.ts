@@ -657,11 +657,11 @@ describe('八字神煞計算測試', () => {
   });
 
   describe('天廚貴人', () => {
-    it('日干甲見巳支應找到天廚貴人', () => {
+    it('日干甲見巳支應找到天廚貴人（甲木→食神丙火→丙祿在巳）', () => {
       const pillars = createPillars(
         { stem: '甲', branch: '巳' }, // 年支巳（甲天廚在巳）
         { stem: '丙', branch: '寅' },
-        { stem: '甲', branch: '子' }, // 日干甲
+        { stem: '甲', branch: '辰' }, // 日干甲
         { stem: '庚', branch: '午' }
       );
       const result = calculateBaZiShenSha(
@@ -673,6 +673,43 @@ describe('八字神煞計算測試', () => {
       const tianchu = findShenSha(result, '天廚貴人');
       expect(tianchu).toBeDefined();
       expect(tianchu?.type).toBe('吉');
+      expect(tianchu?.positions).toContain('年柱');
+    });
+
+    it('日干己見酉支應找到天廚貴人（己土→食神辛金→辛祿在酉）', () => {
+      const pillars = createPillars(
+        { stem: '甲', branch: '子' },
+        { stem: '丙', branch: '酉' }, // 月支酉（己天廚在酉）
+        { stem: '己', branch: '辰' }, // 日干己
+        { stem: '庚', branch: '午' }
+      );
+      const result = calculateBaZiShenSha(
+        pillars.year,
+        pillars.month,
+        pillars.day,
+        pillars.hour
+      );
+      const tianchu = findShenSha(result, '天廚貴人');
+      expect(tianchu).toBeDefined();
+      expect(tianchu?.type).toBe('吉');
+      expect(tianchu?.positions).toContain('月柱');
+    });
+
+    it('四柱都沒有對應地支不應找到天廚貴人', () => {
+      const pillars = createPillars(
+        { stem: '甲', branch: '子' },
+        { stem: '丙', branch: '寅' },
+        { stem: '甲', branch: '辰' }, // 日干甲（天廚在巳）
+        { stem: '庚', branch: '午' } // 四柱都沒有巳
+      );
+      const result = calculateBaZiShenSha(
+        pillars.year,
+        pillars.month,
+        pillars.day,
+        pillars.hour
+      );
+      const tianchu = findShenSha(result, '天廚貴人');
+      expect(tianchu).toBeUndefined();
     });
   });
 
