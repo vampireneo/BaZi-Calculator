@@ -416,9 +416,9 @@ describe('Nayin (納音) Calculation', () => {
 
     // Verify specific nayin values
     expect(result.yearPillar.nayin).toBe('路旁土');
-    expect(result.monthPillar.nayin).toBe('白蜡金');
-    expect(result.dayPillar.nayin).toBe('白蜡金');
-    expect(result.hourPillar.nayin).toBe('白蜡金');
+    expect(result.monthPillar.nayin).toBe('白蠟金');
+    expect(result.dayPillar.nayin).toBe('白蠟金');
+    expect(result.hourPillar.nayin).toBe('白蠟金');
   });
 
   it('should have valid nayin for different dates', () => {
