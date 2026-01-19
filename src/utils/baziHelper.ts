@@ -114,28 +114,28 @@ export function calculateBaZi(birthInfo: BirthInfo): BaZiResult {
   const yearPillar: Pillar = {
     heavenlyStem: yearSixtyCycle.getHeavenStem().getName(),
     earthlyBranch: yearSixtyCycle.getEarthBranch().getName(),
-    nayin: yearSixtyCycle.getSound().getName(),
+    nayin: convertToTraditional(yearSixtyCycle.getSound().getName()),
     hiddenStems: getHiddenStems(yearSixtyCycle.getEarthBranch()),
   };
 
   const monthPillar: Pillar = {
     heavenlyStem: monthSixtyCycle.getHeavenStem().getName(),
     earthlyBranch: monthSixtyCycle.getEarthBranch().getName(),
-    nayin: monthSixtyCycle.getSound().getName(),
+    nayin: convertToTraditional(monthSixtyCycle.getSound().getName()),
     hiddenStems: getHiddenStems(monthSixtyCycle.getEarthBranch()),
   };
 
   const dayPillar: Pillar = {
     heavenlyStem: daySixtyCycle.getHeavenStem().getName(),
     earthlyBranch: daySixtyCycle.getEarthBranch().getName(),
-    nayin: daySixtyCycle.getSound().getName(),
+    nayin: convertToTraditional(daySixtyCycle.getSound().getName()),
     hiddenStems: getHiddenStems(daySixtyCycle.getEarthBranch()),
   };
 
   const hourPillar: Pillar = {
     heavenlyStem: hourSixtyCycle.getHeavenStem().getName(),
     earthlyBranch: hourSixtyCycle.getEarthBranch().getName(),
-    nayin: hourSixtyCycle.getSound().getName(),
+    nayin: convertToTraditional(hourSixtyCycle.getSound().getName()),
     hiddenStems: getHiddenStems(hourSixtyCycle.getEarthBranch()),
   };
 
