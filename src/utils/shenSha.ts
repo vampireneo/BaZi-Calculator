@@ -2986,27 +2986,28 @@ export function calculateBaZiShenSha(
     addShenSha(suixingPositions, '歲刑', '凶', '主刑傷災禍、須防意外、宜謹慎');
   }
 
-  // 103. 牆內桃花（日支為桃花）
+  // 103. 牆內桃花（日支為年支桃花）
+  // 以年支的三合局確定桃花位，若日支為此桃花位，為牆內桃花
   const taohuaBranchDay = TAOHUA[dayBranch];
-  if (taohuaBranchDay && QIANGNEII_TAOHUA(dayBranch, taohuaBranchDay)) {
+  const taohuaBranchYear = TAOHUA[yearBranch];
+  if (taohuaBranchYear && QIANGNEII_TAOHUA(dayBranch, taohuaBranchYear)) {
     addShenSha(['日柱'], '牆內桃花', '中', '主配偶貌美、夫妻恩愛、家庭和睦');
   }
 
-  // 104. 牆外桃花（時支為桃花）
-  const taohuaBranchYear = TAOHUA[yearBranch];
-  if (taohuaBranchYear && QIANGWAI_TAOHUA(hourBranch, taohuaBranchDay || taohuaBranchYear)) {
+  // 104. 牆外桃花（時支為年支桃花）
+  // 以年支的三合局確定桃花位，若時支為此桃花位，為牆外桃花
+  if (taohuaBranchYear && QIANGWAI_TAOHUA(hourBranch, taohuaBranchYear)) {
     addShenSha(['時柱'], '牆外桃花', '中', '主外遇之象、須防感情糾葛');
   }
 
-  // 105. 遍野桃花（月支為桃花）
-  if (
-    (taohuaBranchDay && BIANYE_TAOHUA(monthBranch, taohuaBranchDay)) ||
-    (taohuaBranchYear && BIANYE_TAOHUA(monthBranch, taohuaBranchYear))
-  ) {
+  // 105. 遍野桃花（月支為年支桃花）
+  // 以年支的三合局確定桃花位，若月支為此桃花位，為遍野桃花
+  if (taohuaBranchYear && BIANYE_TAOHUA(monthBranch, taohuaBranchYear)) {
     addShenSha(['月柱'], '遍野桃花', '中', '主風流成性、桃花氾濫、宜自律');
   }
 
-  // 106. 倒插桃花（年支為桃花）
+  // 106. 倒插桃花（年支為日支桃花）
+  // 以日支的三合局確定桃花位，若年支為此桃花位，為倒插桃花
   if (taohuaBranchDay && DAOCHA_TAOHUA(yearBranch, taohuaBranchDay)) {
     addShenSha(
       ['年柱'],
